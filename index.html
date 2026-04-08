@@ -12,7 +12,7 @@
 <div id="game-container">
     <div id="main-menu" class="overlay-screen">
         <h1 class="title-text" style="font-size: 60px;">ARENA JS<br>V8</h1>
-        <button class="btn" onclick="startGame()">JOGAR</button>
+        <button class="btn" onclick="openCharacterSelect()">JOGAR</button>
         <button class="btn" style="background-color: #444;" onclick="openSettings()">CONFIGURAÇÕES</button>
         <button class="btn" style="background-color: #444;" onclick="showCredits()">CRÉDITOS</button>
         
@@ -33,6 +33,34 @@
                 <p style="color: #f00;"><strong>FATALITY (QUALQUER LUGAR):</strong></p>
                 <p>Baixo ➔ Baixo ➔ Soco</p>
             </div>
+            <div class="col-info">
+                <p style="color: #9fd8ff; font-size: 14px; margin-bottom: 10px;">⚡ PYTHON-TROVAO</p>
+                <p>Raio: Baixo ➔ Frente ➔ Soco</p>
+                <p>Investida deitada: Trás ➔ Frente ➔ Chute</p>
+                <hr style="border-color: #444; margin: 10px 0;">
+                <p style="color: #60ffb8; font-size: 14px; margin-bottom: 10px;">🟢 KERNEL-CORTE</p>
+                <p>Bola laser: Trás ➔ Trás ➔ Soco</p>
+                <p>Avanço rodando: Baixo ➔ Frente ➔ Chute</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="character-select-menu" class="overlay-screen" style="display: none;">
+        <h1 class="title-text" style="font-size: 34px;">SELECAO DE PERSONAGENS</h1>
+        <div class="char-select-layout">
+            <div class="char-select-col">
+                <h3 style="color: #00ffff;">PLAYER 1</h3>
+                <div id="p1-char-list" class="char-list"></div>
+            </div>
+            <div class="char-select-col">
+                <h3 style="color: #ffcc00;">PLAYER 2</h3>
+                <div id="p2-char-list" class="char-list"></div>
+            </div>
+        </div>
+        <p id="same-char-warning" class="same-char-warning" style="display:none;">Mesmo personagem selecionado: P2 entra com tom mais escuro.</p>
+        <div class="char-select-actions">
+            <button id="start-match-btn" class="btn" onclick="startGame()">INICIAR LUTA</button>
+            <button class="btn" style="background-color: #333;" onclick="closeCharacterSelect()">VOLTAR</button>
         </div>
     </div>
 
@@ -63,7 +91,23 @@
     <div id="pause-menu" class="overlay-screen">
         <h1 class="title-text" style="color: #fff;">PAUSADO</h1>
         <button class="btn" onclick="togglePause()">CONTINUAR</button>
+        <button class="btn" style="background-color: #444;" onclick="openPauseCommandList()">LISTA DE COMANDOS</button>
         <button class="btn" style="background-color: #333;" onclick="quitToMenu()">MENU PRINCIPAL</button>
+
+        <div id="pause-commands-panel" class="pause-commands-panel" style="display: none;">
+            <h3 style="margin-bottom: 14px; color: #ffcc00;">COMANDOS DOS PERSONAGENS SELECIONADOS</h3>
+            <div class="pause-commands-grid">
+                <div>
+                    <h4 id="pause-p1-name" style="color:#00ffff;">P1</h4>
+                    <div id="pause-p1-commands"></div>
+                </div>
+                <div>
+                    <h4 id="pause-p2-name" style="color:#ffcc00; text-align:right;">P2</h4>
+                    <div id="pause-p2-commands"></div>
+                </div>
+            </div>
+            <button class="btn" style="width: 260px; margin-top: 12px;" onclick="closePauseCommandList()">FECHAR LISTA</button>
+        </div>
     </div>
 
     <div id="credits-menu" class="overlay-screen" style="display: none;">
@@ -85,13 +129,13 @@
         <div class="player-info">
             <div class="health-bar-container"><div id="player-health" class="health-bar"></div></div>
             <div class="special-bar-container"><div id="player-special" class="special-bar"></div></div>
-            <div class="name-tag" style="color: #00ffff; text-shadow: 0 0 5px #00ffff;">BACKEND-FRIO</div>
+            <div id="player-name-tag" class="name-tag" style="color: #00ffff; text-shadow: 0 0 5px #00ffff;">BACKEND-FRIO</div>
         </div>
         <div id="timer">60</div>
         <div class="player-info player2-info">
             <div class="health-bar-container"><div id="enemy-health" class="health-bar"></div></div>
             <div class="special-bar-container"><div id="enemy-special" class="special-bar"></div></div>
-            <div class="name-tag" style="color: #ffcc00; text-shadow: 0 0 5px #ffcc00;">FRONTEND-QUENTE</div>
+            <div id="enemy-name-tag" class="name-tag" style="color: #ffcc00; text-shadow: 0 0 5px #ffcc00;">FRONTEND-QUENTE</div>
         </div>
     </div>
 
@@ -111,10 +155,11 @@
 <script>
     // Inicializa o jogo quando o DOM está pronto
     document.addEventListener('DOMContentLoaded', () => {
+        loadSettingsFromStorage();
         initGame();
         drawBackground();
         buildSettingsUI();
-            showCredits();
+        renderCharacterSelection();
     });
 </script>
 </body>

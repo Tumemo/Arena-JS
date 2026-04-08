@@ -3,6 +3,37 @@
 let canvas, ctx, floorY;
 let player, enemy;
 
+function getCharacterById(id) {
+    return characterRoster.find((char) => char.id === id) || characterRoster[0];
+}
+
+function createFighterFromSelection(slot, cfg) {
+    return new Fighter({
+        id: cfg.id,
+        name: cfg.name,
+        archetype: cfg.archetype,
+        accent: cfg.accent,
+        position: { x: slot === 'p1' ? canvas.width * 0.2 : canvas.width * 0.8 - 60, y: 0 },
+        color: cfg.color,
+        baseColor: cfg.baseColor,
+        skinColor: cfg.skinColor,
+        isFacingRight: slot === 'p1',
+        uiPrefix: slot === 'p1' ? 'player' : 'enemy'
+    });
+}
+
+function setupSelectedFighters() {
+    const p1Config = getCharacterById(selectedCharacters.p1);
+    const p2Config = getCharacterById(selectedCharacters.p2);
+
+    player = createFighterFromSelection('p1', p1Config);
+    enemy = createFighterFromSelection('p2', p2Config);
+
+    if (p1Config.id === p2Config.id) {
+        enemy.applyColorShade(0.72);
+    }
+}
+
 function initGame() {
     canvas = document.getElementById('gameCanvas');
     ctx = canvas.getContext('2d');
@@ -10,21 +41,7 @@ function initGame() {
     canvas.height = window.innerHeight;
     floorY = canvas.height - 120;
     
-    player = new Fighter({
-        name: 'Backend-Frio',
-        position: { x: canvas.width * 0.2, y: 0 },
-        color: '#0066cc',
-        isFacingRight: true,
-        uiPrefix: 'player'
-    });
-    
-    enemy = new Fighter({
-        name: 'Frontend-Quente',
-        position: { x: canvas.width * 0.8 - 60, y: 0 },
-        color: '#ffaa00',
-        isFacingRight: false,
-        uiPrefix: 'enemy'
-    });
+    setupSelectedFighters();
     
     updateKeyMaps();
     window.addEventListener('resize', () => {
@@ -206,6 +223,80 @@ function executeFrontendQuenteFatality(winner, loser) {
     }, 500);
 }
 
+function executePythonTrovaoFatality(winner, loser) {
+    matchState = 'fatality';
+    winner.velocity = {x:0, y:0};
+    loser.velocity = {x:0, y:0};
+    showCentralMessage("", 0);
+    winner.isFacingRight = winner.position.x < loser.position.x;
+
+    setTimeout(() => {
+        winner.isAttacking = true;
+        winner.attackType = 'special';
+        let strikes = 0;
+        const strikeFx = setInterval(() => {
+            strikes++;
+            loser.isHit = true;
+            loser.hitTimer = 10;
+            for(let i=0; i<22; i++) {
+                particles.push(new Particle(
+                    loser.position.x + 30 + (Math.random() - 0.5) * 50,
+                    loser.position.y + 20 + Math.random() * 120,
+                    '#bfe8ff',
+                    'spark',
+                    1.5
+                ));
+            }
+            if (strikes >= 7) {
+                clearInterval(strikeFx);
+                loser.isKnockedDown = true;
+                loser.knockdownTimer = Infinity;
+                loser.velocity.y = -10;
+                loser.velocity.x = winner.isFacingRight ? 8 : -8;
+                setTimeout(() => endGameWithWinner(winner, true), 1300);
+            }
+        }, 170);
+    }, 350);
+}
+
+function executeKernelCorteFatality(winner, loser) {
+    matchState = 'fatality';
+    winner.velocity = {x:0, y:0};
+    loser.velocity = {x:0, y:0};
+    showCentralMessage("", 0);
+    winner.isFacingRight = winner.position.x < loser.position.x;
+
+    setTimeout(() => {
+        winner.isAttacking = true;
+        winner.attackType = 'spin_dash';
+        let spinCount = 0;
+        const spinFx = setInterval(() => {
+            spinCount++;
+            for(let i=0; i<24; i++) {
+                particles.push(new Particle(
+                    loser.position.x + 30 + (Math.random() - 0.5) * 30,
+                    loser.position.y + 30 + Math.random() * 100,
+                    '#ff2b2b',
+                    'blood',
+                    1.4
+                ));
+            }
+            loser.isHit = true;
+            loser.hitTimer = 8;
+            if (spinCount >= 6) {
+                clearInterval(spinFx);
+                loser.isBurned = true;
+                loser.color = '#240000';
+                loser.skinColor = '#522020';
+                loser.baseColor = '#120000';
+                loser.isKnockedDown = true;
+                loser.knockdownTimer = Infinity;
+                setTimeout(() => endGameWithWinner(winner, true), 1200);
+            }
+        }, 160);
+    }, 300);
+}
+
 function attackCollision({ attacker, target }) {
     if(target.isShattered) return false;
     const aBox = attacker.attackBox;
@@ -272,6 +363,7 @@ function decreaseTimer() {
 
 function processMovement(fighter, keys) {
     if (matchState === 'fatality') return;
+    if (fighter.dashTimer > 0) return;
 
     let moveLeft = keys['left'];
     let moveRight = keys['right'];
@@ -312,11 +404,17 @@ function handleAction(fighter, cmd) {
     // FATALITIES
     if (matchState === 'finish_him' && fighter.health > 0) {
         let isClose = Math.abs(fighter.position.x - opponent.position.x) < 140;
-        if (fighter.name === 'Backend-Frio' && fighter.checkCombo([forward, forward, 'punch']) && isClose) {
+        if (fighter.id === 'backend-frio' && fighter.checkCombo([forward, forward, 'punch']) && isClose) {
             executeBackendFrioFatality(fighter, opponent);
             return;
-        } else if (fighter.name === 'Frontend-Quente' && fighter.checkCombo(['down', 'down', 'punch'])) {
+        } else if (fighter.id === 'frontend-quente' && fighter.checkCombo(['down', 'down', 'punch'])) {
             executeFrontendQuenteFatality(fighter, opponent);
+            return;
+        } else if (fighter.id === 'python-trovao' && fighter.checkCombo([forward, forward, 'kick']) && isClose) {
+            executePythonTrovaoFatality(fighter, opponent);
+            return;
+        } else if (fighter.id === 'kernel-corte' && fighter.checkCombo([back, back, 'kick']) && isClose) {
+            executeKernelCorteFatality(fighter, opponent);
             return;
         }
     }
@@ -324,15 +422,25 @@ function handleAction(fighter, cmd) {
     if (cmd === 'up' && !fighter.isAirborne && !fighter.isAttacking) {
         fighter.velocity.y = -22;
     } else if (cmd === 'punch') {
-        if (!fighter.isAirborne && fighter.name === 'Backend-Frio' && fighter.checkCombo(['down', forward, 'punch'])) {
+        if (!fighter.isAirborne && fighter.id === 'backend-frio' && fighter.checkCombo(['down', forward, 'punch'])) {
             fighter.specialIceball();
-        } else if (!fighter.isAirborne && fighter.name === 'Frontend-Quente' && fighter.checkCombo([back, back, 'punch'])) {
+        } else if (!fighter.isAirborne && fighter.id === 'frontend-quente' && fighter.checkCombo([back, back, 'punch'])) {
             fighter.specialSpear();
+        } else if (!fighter.isAirborne && fighter.id === 'python-trovao' && fighter.checkCombo(['down', forward, 'punch'])) {
+            fighter.specialLightning();
+        } else if (!fighter.isAirborne && fighter.id === 'kernel-corte' && fighter.checkCombo([back, back, 'punch'])) {
+            fighter.specialLaserOrb();
         } else {
             fighter.attackPunch();
         }
     } else if (cmd === 'kick') {
-        fighter.attackKick();
+        if (!fighter.isAirborne && fighter.id === 'python-trovao' && fighter.checkCombo([back, forward, 'kick'])) {
+            fighter.specialSlideDash();
+        } else if (!fighter.isAirborne && fighter.id === 'kernel-corte' && fighter.checkCombo(['down', forward, 'kick'])) {
+            fighter.specialSpinDash();
+        } else {
+            fighter.attackKick();
+        }
     }
 }
 
@@ -395,6 +503,10 @@ function animate() {
                     target.isPulled = true;
                     target.pulledBy = proj.owner;
                     target.takeHit(5, 'normal');
+                } else if (proj.type === 'lightning') {
+                    target.takeHit(11, 'normal');
+                } else if (proj.type === 'laser') {
+                    target.takeHit(14, 'normal');
                 }
                 for(let j=0; j<15; j++) {
                     particles.push(new Particle(proj.position.x, proj.position.y, proj.color, 'glow'));
@@ -418,6 +530,7 @@ function animate() {
             if (atk.isAttacking && !atk.hasHit && attackCollision({ attacker: atk, target: def }) && (!def.isDead || matchState === 'finish_him')) {
                 atk.hasHit = true;
                 def.takeHit(atk.attackDamage, atk.attackType);
+                if ((atk.attackType === 'slide_dash' || atk.attackType === 'spin_dash') && atk.dashStopsOnHit) atk.stopDashSpecial();
                 updateHealthUI(def, ui);
             }
         });
@@ -450,7 +563,11 @@ function resetGameState() {
 }
 
 function startGame() {
+    setupSelectedFighters();
+    applySelectedCharacterUI();
     document.getElementById('main-menu').style.display = 'none';
+    document.getElementById('character-select-menu').style.display = 'none';
+    document.getElementById('pause-commands-panel').style.display = 'none';
     document.getElementById('ui-layer').style.display = 'flex';
     resetGameState();
 
@@ -468,6 +585,8 @@ function togglePause() {
     if (!gameActive || matchState !== 'fighting') return;
     isPaused = !isPaused;
     document.getElementById('pause-menu').style.display = isPaused ? 'flex' : 'none';
+    if (isPaused) renderPauseCommandList();
+    else closePauseCommandList();
     if(!isPaused && gameConfig.timeLimit !== Infinity) decreaseTimer();
 }
 
@@ -477,6 +596,8 @@ function quitToMenu() {
     window.cancelAnimationFrame(animationFrameId);
     clearTimeout(timerId);
     document.getElementById('pause-menu').style.display = 'none';
+    document.getElementById('pause-commands-panel').style.display = 'none';
+    document.getElementById('character-select-menu').style.display = 'none';
     document.getElementById('ui-layer').style.display = 'none';
     document.getElementById('central-message').style.display = 'none';
     document.getElementById('blood-overlay').style.display = 'none';

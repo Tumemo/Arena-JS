@@ -1,8 +1,11 @@
 // fighter.js - Classe do lutador/personagem
 
 class Fighter {
-    constructor({ name, position, color, isFacingRight, uiPrefix }) {
+    constructor({ id, name, archetype, accent, position, color, baseColor, skinColor, isFacingRight, uiPrefix }) {
+        this.id = id;
         this.name = name;
+        this.archetype = archetype || 'ninja';
+        this.accent = accent || '#ffffff';
         this.position = position;
         this.velocity = { x: 0, y: 0 };
         this.width = 60;
@@ -10,9 +13,10 @@ class Fighter {
         this.color = color;
         this.isFacingRight = isFacingRight;
         this.uiPrefix = uiPrefix;
-        this.originalBaseColor = '#111';
-        this.originalSkinColor = '#ffccaa';
+        this.originalBaseColor = baseColor || '#111';
+        this.originalSkinColor = skinColor || '#ffccaa';
         this.originalColor = color;
+        this.colorShade = 1;
         this.resetState();
     }
 
@@ -39,12 +43,18 @@ class Fighter {
         this.isHit = false;
         this.hitTimer = 0;
         this.attackBox = { width: 100, height: 40, baseOffset: { x: 0, y: 30 } };
+        this.dashTimer = 0;
+        this.dashSpeed = 0;
+        this.dashDamage = 0;
+        this.specialKind = null;
+        this.dashStopsOnHit = false;
         this.isShattered = false;
         this.isBurned = false;
         this.isMaskless = false;
         this.baseColor = this.originalBaseColor;
         this.skinColor = this.originalSkinColor;
         this.color = this.originalColor;
+        this.applyColorShade(this.colorShade);
     }
 
     get isAirborne() {
@@ -139,6 +149,114 @@ class Fighter {
         }));
     }
 
+    specialLightning() {
+        if(this.attackCooldown || this.isImmobilized || this.specialCooldown > 0 || this.isBlocking) return;
+        this.executeAttack(0,0,{x:0,y:0}, 'special', 0, 850);
+        this.specialCooldown = this.maxSpecialCooldown;
+        projectiles.push(new Projectile({
+            position: { x: this.position.x + (this.isFacingRight ? this.width : -30), y: this.position.y + 25 },
+            velocity: { x: this.isFacingRight ? 18 : -18, y: 0 },
+            color: '#a9d9ff',
+            type: 'lightning',
+            owner: this
+        }));
+    }
+
+    specialLaserOrb() {
+        if(this.attackCooldown || this.isImmobilized || this.specialCooldown > 0 || this.isBlocking) return;
+        this.executeAttack(0,0,{x:0,y:0}, 'special', 0, 850);
+        this.specialCooldown = this.maxSpecialCooldown;
+        projectiles.push(new Projectile({
+            position: { x: this.position.x + (this.isFacingRight ? this.width : -30), y: this.position.y + 45 },
+            velocity: { x: this.isFacingRight ? 20 : -20, y: 0 },
+            color: '#ff2b2b',
+            type: 'laser',
+            owner: this
+        }));
+    }
+
+    beginDashSpecial(kind, speed, damage, duration, stopOnHit = false) {
+        if (this.attackCooldown || this.isImmobilized || this.specialCooldown > 0 || this.isBlocking) return;
+        this.executeAttack(130, 70, { x: 0, y: 70 }, kind, damage, 1000);
+        this.specialCooldown = this.maxSpecialCooldown;
+        this.dashSpeed = this.isFacingRight ? speed : -speed;
+        this.dashDamage = damage;
+        this.dashTimer = duration;
+        this.specialKind = kind;
+        this.dashStopsOnHit = stopOnHit;
+    }
+
+    specialSlideDash() {
+        this.beginDashSpecial('slide_dash', 17, 18, 60, true);
+    }
+
+    specialSpinDash() {
+        this.beginDashSpecial('spin_dash', 14, 20, 26, false);
+    }
+
+    stopDashSpecial() {
+        this.dashTimer = 0;
+        this.dashSpeed = 0;
+        this.dashDamage = 0;
+        this.specialKind = null;
+        this.dashStopsOnHit = false;
+        this.isAttacking = false;
+    }
+
+    toHexChannel(value) {
+        const clamped = Math.max(0, Math.min(255, Math.round(value)));
+        return clamped.toString(16).padStart(2, '0');
+    }
+
+    shadeHexColor(hex, factor) {
+        if (!hex || hex[0] !== '#' || hex.length !== 7) return hex;
+        const r = parseInt(hex.slice(1, 3), 16) * factor;
+        const g = parseInt(hex.slice(3, 5), 16) * factor;
+        const b = parseInt(hex.slice(5, 7), 16) * factor;
+        return `#${this.toHexChannel(r)}${this.toHexChannel(g)}${this.toHexChannel(b)}`;
+    }
+
+    applyColorShade(factor = 1) {
+        this.colorShade = factor;
+        this.color = this.shadeHexColor(this.originalColor, factor);
+        this.baseColor = this.shadeHexColor(this.originalBaseColor, factor);
+        this.skinColor = this.shadeHexColor(this.originalSkinColor, factor);
+    }
+
+    drawUniqueDetails(ctx, drawY) {
+        if (this.archetype === 'storm_python') {
+            // Chapeu em cone para lembrar o visual classico
+            ctx.fillStyle = '#d9e6ff';
+            ctx.beginPath();
+            ctx.moveTo(0, drawY - 18);
+            ctx.lineTo(-30, drawY + 10);
+            ctx.lineTo(30, drawY + 10);
+            ctx.closePath();
+            ctx.fill();
+            ctx.strokeStyle = '#9ec2ff';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            ctx.strokeStyle = this.accent;
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(-14, drawY + 18);
+            ctx.lineTo(-2, drawY + 26);
+            ctx.lineTo(-10, drawY + 36);
+            ctx.lineTo(4, drawY + 47);
+            ctx.stroke();
+            ctx.fillStyle = '#dff4ff';
+            ctx.fillRect(-18, drawY + 4, 36, 6);
+        } else if (this.archetype === 'cyber_commando') {
+            // Placa peitoral estilo MK1
+            ctx.fillStyle = '#0a0a0a';
+            ctx.fillRect(-22, drawY + 32, 44, 22);
+            ctx.fillStyle = '#2c2c2c';
+            ctx.fillRect(-18, drawY + 36, 36, 12);
+            ctx.fillStyle = this.accent;
+            ctx.fillRect(-20, drawY + 38, 40, 5);
+        }
+    }
+
     draw(ctx, canvas, floorY) {
         if (this.isShattered) return;
 
@@ -198,12 +316,13 @@ class Fighter {
             armBackAngle = 0.3 - sway;
             ctx.rotate(sway * 0.5);
         } else if (isCrouched) {
-            legFrontAngle = -1.0;
-            legBackAngle = 1.0;
-            legFrontY = -40;
-            legBackY = -40;
-            armFrontAngle = -0.3;
-            drawY = -120;
+            legFrontAngle = -0.55;
+            legBackAngle = 0.55;
+            legFrontY = -18;
+            legBackY = -18;
+            armFrontAngle = -0.45;
+            armBackAngle = -0.15;
+            drawY = -145;
         } else if (this.isAirborne) {
             legFrontAngle = -0.2;
             legBackAngle = 0.5;
@@ -238,6 +357,25 @@ class Fighter {
                 legFrontY = -20;
             }
             else if (this.attackType === 'special') { armFrontAngle = -1.5; armBackAngle = -1.5; }
+            else if (this.attackType === 'slide_dash') {
+                drawY = -148;
+                legFrontAngle = -1.05;
+                legBackAngle = -0.9;
+                legFrontY = 12;
+                legBackY = 14;
+                armFrontAngle = -1.8;
+                armBackAngle = -1.75;
+                ctx.translate(0, -6);
+                ctx.rotate(-0.1);
+            } else if (this.attackType === 'spin_dash') {
+                drawY = -165;
+                legFrontAngle = Math.sin(Date.now() / 55) * 1.8;
+                legBackAngle = -Math.sin(Date.now() / 55) * 1.8;
+                armFrontAngle = Math.sin(Date.now() / 55) * 2.2;
+                armBackAngle = -Math.sin(Date.now() / 55) * 2.2;
+                ctx.translate(0, -30);
+                ctx.rotate(Date.now() / 70);
+            }
         }
 
         // Desenho corpo
@@ -294,8 +432,20 @@ class Fighter {
                 ctx.shadowColor = '#fff';
                 ctx.fillRect(2, drawY + 10, 8, 4);
                 ctx.shadowBlur = 0;
+                if (this.archetype === 'cyber_commando') {
+                    ctx.fillStyle = '#220000';
+                    ctx.fillRect(-14, drawY + 6, 28, 8);
+                    ctx.fillStyle = '#ff1a1a';
+                    ctx.fillRect(5, drawY + 7, 7, 5);
+                    ctx.shadowColor = '#ff1a1a';
+                    ctx.shadowBlur = 12;
+                    ctx.fillRect(5, drawY + 7, 7, 5);
+                    ctx.shadowBlur = 0;
+                }
             }
         }
+
+        this.drawUniqueDetails(ctx, drawY);
 
         // Perna frente
         ctx.fillStyle = this.baseColor;
@@ -371,6 +521,29 @@ class Fighter {
             }
         }
 
+        if (this.dashTimer > 0) {
+            this.dashTimer--;
+            this.isAttacking = true;
+            this.isCrouching = false;
+            this.isBlocking = false;
+            if (this.position.y + this.height >= floorY) this.position.y = floorY - this.height;
+            this.velocity.x = this.dashSpeed;
+            this.attackDamage = this.dashDamage;
+            this.attackType = this.specialKind || this.attackType;
+            if (Math.random() < 0.4) {
+                particles.push(new Particle(
+                    this.position.x + this.width / 2,
+                    this.position.y + this.height - 10,
+                    this.archetype === 'storm_python' ? '#bfe8ff' : '#ff3a3a',
+                    'glow'
+                ));
+            }
+            if (this.dashTimer <= 0) {
+                this.stopDashSpecial();
+                this.velocity.x *= 0.4;
+            }
+        }
+
         if (this.isPulled && this.pulledBy) {
             this.velocity.x = this.position.x > this.pulledBy.position.x ? -15 : 15;
             if (Math.abs(this.position.x - this.pulledBy.position.x) < 80) {
@@ -388,10 +561,12 @@ class Fighter {
         if (this.position.x < 0) {
             this.position.x = 0;
             this.velocity.x = 0;
+            if (this.dashTimer > 0) this.stopDashSpecial();
         }
         if (this.position.x + this.width > canvas.width) {
             this.position.x = canvas.width - this.width;
             this.velocity.x = 0;
+            if (this.dashTimer > 0) this.stopDashSpecial();
         }
 
         let currentGravity = (this.isKnockedDown && this.isAirborne) ? globalGravity * 0.4 : globalGravity;

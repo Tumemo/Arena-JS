@@ -198,6 +198,106 @@ canvas {
     gap: 20px;
 }
 
+.char-select-layout {
+    width: min(1100px, 90vw);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin: 20px 0;
+}
+
+.char-select-col {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.18);
+    border-radius: 12px;
+    padding: 18px;
+}
+
+.char-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.char-card {
+    background: rgba(0,0,0,0.6);
+    border: 2px solid #555;
+    border-radius: 10px;
+    color: #ddd;
+    padding: 12px;
+    text-align: left;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.char-card:hover {
+    border-color: #ddd;
+    transform: translateY(-2px);
+}
+
+.char-card.selected {
+    border-color: #00ffff;
+    box-shadow: 0 0 16px rgba(0,255,255,0.5);
+}
+
+.char-name {
+    display: block;
+    font-size: 12px;
+    margin-bottom: 8px;
+    color: #fff;
+}
+
+.char-special {
+    display: block;
+    font-size: 9px;
+    line-height: 1.4;
+    color: #9fb3bf;
+}
+
+.same-char-warning {
+    color: #ffd27f;
+    font-size: 11px;
+    margin-bottom: 14px;
+    text-align: center;
+}
+
+.char-select-actions {
+    display: flex;
+    gap: 16px;
+}
+
+.pause-commands-panel {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 60;
+    width: min(1000px, 88vw);
+    background: linear-gradient(180deg, rgba(20,20,26,0.96), rgba(6,6,8,0.96));
+    border: 2px solid #707070;
+    border-radius: 14px;
+    padding: 22px;
+    box-shadow: 0 0 0 200vmax rgba(0,0,0,0.45), 0 0 24px rgba(255, 64, 64, 0.25);
+}
+
+.pause-commands-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.cmd-item {
+    font-size: 10px;
+    line-height: 1.6;
+    color: #d8d8d8;
+    margin-bottom: 8px;
+    padding: 8px 10px;
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 8px;
+    background: rgba(255,255,255,0.03);
+}
+
 .credits-card {
     background: rgba(255,255,255,0.08);
     border: 1px solid rgba(255,255,255,0.2);

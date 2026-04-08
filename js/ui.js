@@ -6,10 +6,166 @@ function formatKeyName(key) {
     return key.toUpperCase();
 }
 
+function saveSettingsToStorage() {
+    const payload = {
+        timeLimit: gameConfig.timeLimit,
+        p1Keys,
+        p2Keys
+    };
+    localStorage.setItem('arena-js-settings', JSON.stringify(payload));
+}
+
+function loadSettingsFromStorage() {
+    const raw = localStorage.getItem('arena-js-settings');
+    if (!raw) return;
+    try {
+        const parsed = JSON.parse(raw);
+        if (parsed && parsed.timeLimit !== undefined) {
+            gameConfig.timeLimit = parsed.timeLimit;
+            const timeSelect = document.getElementById('time-select');
+            if (timeSelect) timeSelect.value = String(parsed.timeLimit);
+        }
+        if (parsed && parsed.p1Keys) p1Keys = { ...p1Keys, ...parsed.p1Keys };
+        if (parsed && parsed.p2Keys) p2Keys = { ...p2Keys, ...parsed.p2Keys };
+        updateKeyMaps();
+    } catch (err) {
+        console.warn('Falha ao carregar settings salvas.', err);
+    }
+}
+
+function getCharacterByIdUI(id) {
+    return characterRoster.find((char) => char.id === id) || characterRoster[0];
+}
+
+function renderCharacterSelection() {
+    const p1Container = document.getElementById('p1-char-list');
+    const p2Container = document.getElementById('p2-char-list');
+    const sameCharWarning = document.getElementById('same-char-warning');
+    const startBtn = document.getElementById('start-match-btn');
+    if (!p1Container || !p2Container || !startBtn) return;
+
+    const createCard = (char, slot) => {
+        const isSelected = selectedCharacters[slot] === char.id;
+        return `<button class="char-card ${isSelected ? 'selected' : ''}" onclick="selectCharacter('${slot}', '${char.id}')">
+            <span class="char-name">${char.name}</span>
+            <span class="char-special">${getSpecialText(char.id)}</span>
+        </button>`;
+    };
+
+    p1Container.innerHTML = characterRoster.map((char) => createCard(char, 'p1')).join('');
+    p2Container.innerHTML = characterRoster.map((char) => createCard(char, 'p2')).join('');
+
+    const sameCharacter = selectedCharacters.p1 === selectedCharacters.p2;
+    sameCharWarning.style.display = sameCharacter ? 'block' : 'none';
+    startBtn.disabled = !selectedCharacters.p1 || !selectedCharacters.p2;
+}
+
+function getSpecialText(characterId) {
+    if (characterId === 'backend-frio') return 'Especial: gelo + freeze';
+    if (characterId === 'frontend-quente') return 'Especial: arpao + puxao';
+    if (characterId === 'python-trovao') return 'Especial: raio + dash deitado';
+    if (characterId === 'kernel-corte') return 'Especial: laser + dash giratorio';
+    return 'Especial unico';
+}
+
+function getCommandListByCharacter(characterId) {
+    if (characterId === 'backend-frio') {
+        return [
+            'Especial (gelo): Baixo -> Frente -> Soco',
+            'Rasteira: Baixo + Chute',
+            'Fatality (perto): Frente -> Frente -> Soco'
+        ];
+    }
+    if (characterId === 'frontend-quente') {
+        return [
+            'Especial (arpao): Tras -> Tras -> Soco',
+            'Rasteira: Baixo + Chute',
+            'Fatality: Baixo -> Baixo -> Soco'
+        ];
+    }
+    if (characterId === 'python-trovao') {
+        return [
+            'Especial (raio): Baixo -> Frente -> Soco',
+            'Especial (avanco deitado): Tras -> Frente -> Chute',
+            'Fatality (perto): Frente -> Frente -> Chute'
+        ];
+    }
+    if (characterId === 'kernel-corte') {
+        return [
+            'Especial (bola vermelha): Tras -> Tras -> Soco',
+            'Especial (avanco rodando): Baixo -> Frente -> Chute',
+            'Fatality (perto): Tras -> Tras -> Chute'
+        ];
+    }
+    return ['Sem comandos'];
+}
+
+function selectCharacter(slot, characterId) {
+    selectedCharacters[slot] = characterId;
+    renderCharacterSelection();
+}
+
+function openCharacterSelect() {
+    document.getElementById('main-menu').style.display = 'none';
+    document.getElementById('character-select-menu').style.display = 'flex';
+    renderCharacterSelection();
+}
+
+function closeCharacterSelect() {
+    document.getElementById('character-select-menu').style.display = 'none';
+    document.getElementById('main-menu').style.display = 'flex';
+}
+
+function applySelectedCharacterUI() {
+    const p1 = getCharacterByIdUI(selectedCharacters.p1);
+    const p2 = getCharacterByIdUI(selectedCharacters.p2);
+    const p1Tag = document.getElementById('player-name-tag');
+    const p2Tag = document.getElementById('enemy-name-tag');
+    if (!p1Tag || !p2Tag) return;
+    p1Tag.innerText = p1.name.toUpperCase();
+    p2Tag.innerText = p2.name.toUpperCase();
+    p1Tag.style.color = p1.accent;
+    p2Tag.style.color = p2.accent;
+    p1Tag.style.textShadow = `0 0 5px ${p1.accent}`;
+    p2Tag.style.textShadow = `0 0 5px ${p2.accent}`;
+}
+
+function renderPauseCommandList() {
+    const p1 = getCharacterByIdUI(selectedCharacters.p1);
+    const p2 = getCharacterByIdUI(selectedCharacters.p2);
+    const p1Name = document.getElementById('pause-p1-name');
+    const p2Name = document.getElementById('pause-p2-name');
+    const p1Commands = document.getElementById('pause-p1-commands');
+    const p2Commands = document.getElementById('pause-p2-commands');
+    if (!p1Name || !p2Name || !p1Commands || !p2Commands) return;
+
+    p1Name.innerText = `P1 - ${p1.name.toUpperCase()}`;
+    p2Name.innerText = `P2 - ${p2.name.toUpperCase()}`;
+    p1Name.style.color = p1.accent;
+    p2Name.style.color = p2.accent;
+
+    p1Commands.innerHTML = getCommandListByCharacter(p1.id).map((cmd) => `<div class="cmd-item">${cmd}</div>`).join('');
+    p2Commands.innerHTML = getCommandListByCharacter(p2.id).map((cmd) => `<div class="cmd-item" style="text-align:right;">${cmd}</div>`).join('');
+}
+
+function openPauseCommandList() {
+    const panel = document.getElementById('pause-commands-panel');
+    if (!panel) return;
+    renderPauseCommandList();
+    panel.style.display = 'block';
+}
+
+function closePauseCommandList() {
+    const panel = document.getElementById('pause-commands-panel');
+    if (!panel) return;
+    panel.style.display = 'none';
+}
+
 function applySettings() {
     const timeSelect = document.getElementById('time-select');
     const timeValue = timeSelect.value;
     gameConfig.timeLimit = timeValue === 'Infinity' ? Infinity : parseInt(timeValue);
+    saveSettingsToStorage();
 }
 
 function openSettings() {
@@ -71,6 +227,7 @@ function listenForKey(btnElement, keyObj, action) {
         listeningKeyBtn = null;
         window.removeEventListener('keydown', handler);
         updateKeyMaps();
+        saveSettingsToStorage();
     };
     window.addEventListener('keydown', handler);
 }
