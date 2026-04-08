@@ -9,11 +9,11 @@ function saveGameSettings() {
         volume: 0.5, // futuro
         difficulty: 'normal' // futuro
     };
-    localStorage.setItem('mortalKombatSettings', JSON.stringify(settings));
+    localStorage.setItem('arenaJSSettings', JSON.stringify(settings));
 }
 
 function loadGameSettings() {
-    const saved = localStorage.getItem('mortalKombatSettings');
+    const saved = localStorage.getItem('arenaJSSettings');
     if (saved) {
         const settings = JSON.parse(saved);
         gameConfig.timeLimit = settings.timeLimit;
@@ -27,13 +27,13 @@ function loadGameSettings() {
 class ComboSystem {
     constructor() {
         this.combos = {
-            'subzero': {
+            'backend-frio': {
                 'iceball': ['down', 'forward', 'punch'],
                 'fatality': ['forward', 'forward', 'punch'],
                 'uppercut': ['down', 'punch'],
                 'slide': ['back', 'down', 'kick']
             },
-            'scorpion': {
+            'frontend-quente': {
                 'spear': ['back', 'back', 'punch'],
                 'fatality': ['down', 'down', 'punch'],
                 'teleport': ['down', 'back', 'punch'],
@@ -513,8 +513,8 @@ function showAchievement(id) {
 // 10. Menu de seleção de personagem (base):
 function createCharacterSelect() {
     const characters = [
-        { id: 'subzero', name: 'Sub-Zero', color: '#0066cc' },
-        { id: 'scorpion', name: 'Scorpion', color: '#ffaa00' },
+        { id: 'backend-frio', name: 'Backend-Frio', color: '#0066cc' },
+        { id: 'frontend-quente', name: 'Frontend-Quente', color: '#ffaa00' },
         // Futuros: { id: 'raiden', name: 'Raiden', color: '#ffff00' }
     ];
 

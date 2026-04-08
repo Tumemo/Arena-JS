@@ -11,7 +11,7 @@ function initGame() {
     floorY = canvas.height - 120;
     
     player = new Fighter({
-        name: 'Sub-Zero',
+        name: 'Backend-Frio',
         position: { x: canvas.width * 0.2, y: 0 },
         color: '#0066cc',
         isFacingRight: true,
@@ -19,7 +19,7 @@ function initGame() {
     });
     
     enemy = new Fighter({
-        name: 'Scorpion',
+        name: 'Frontend-Quente',
         position: { x: canvas.width * 0.8 - 60, y: 0 },
         color: '#ffaa00',
         isFacingRight: false,
@@ -130,7 +130,7 @@ function endGameWithWinner(winner, isFatality) {
     }, 6000);
 }
 
-function executeSubZeroFatality(winner, loser) {
+function executeBackendFrioFatality(winner, loser) {
     matchState = 'fatality';
     winner.velocity = {x:0, y:0};
     loser.velocity = {x:0, y:0};
@@ -163,7 +163,7 @@ function executeSubZeroFatality(winner, loser) {
     }, 300);
 }
 
-function executeScorpionFatality(winner, loser) {
+function executeFrontendQuenteFatality(winner, loser) {
     matchState = 'fatality';
     winner.velocity = {x:0, y:0};
     loser.velocity = {x:0, y:0};
@@ -312,11 +312,11 @@ function handleAction(fighter, cmd) {
     // FATALITIES
     if (matchState === 'finish_him' && fighter.health > 0) {
         let isClose = Math.abs(fighter.position.x - opponent.position.x) < 140;
-        if (fighter.name === 'Sub-Zero' && fighter.checkCombo([forward, forward, 'punch']) && isClose) {
-            executeSubZeroFatality(fighter, opponent);
+        if (fighter.name === 'Backend-Frio' && fighter.checkCombo([forward, forward, 'punch']) && isClose) {
+            executeBackendFrioFatality(fighter, opponent);
             return;
-        } else if (fighter.name === 'Scorpion' && fighter.checkCombo(['down', 'down', 'punch'])) {
-            executeScorpionFatality(fighter, opponent);
+        } else if (fighter.name === 'Frontend-Quente' && fighter.checkCombo(['down', 'down', 'punch'])) {
+            executeFrontendQuenteFatality(fighter, opponent);
             return;
         }
     }
@@ -324,9 +324,9 @@ function handleAction(fighter, cmd) {
     if (cmd === 'up' && !fighter.isAirborne && !fighter.isAttacking) {
         fighter.velocity.y = -22;
     } else if (cmd === 'punch') {
-        if (!fighter.isAirborne && fighter.name === 'Sub-Zero' && fighter.checkCombo(['down', forward, 'punch'])) {
+        if (!fighter.isAirborne && fighter.name === 'Backend-Frio' && fighter.checkCombo(['down', forward, 'punch'])) {
             fighter.specialIceball();
-        } else if (!fighter.isAirborne && fighter.name === 'Scorpion' && fighter.checkCombo([back, back, 'punch'])) {
+        } else if (!fighter.isAirborne && fighter.name === 'Frontend-Quente' && fighter.checkCombo([back, back, 'punch'])) {
             fighter.specialSpear();
         } else {
             fighter.attackPunch();

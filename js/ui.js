@@ -82,6 +82,18 @@ function updateKeyMaps() {
     for(let action in p2Keys) keyMapP2[p2Keys[action]] = action;
 }
 
+function showCredits() {
+    document.getElementById('main-menu').style.display = 'none';
+    document.getElementById('settings-menu').style.display = 'none';
+    document.getElementById('pause-menu').style.display = 'none';
+    document.getElementById('credits-menu').style.display = 'flex';
+}
+
+function closeCredits() {
+    document.getElementById('credits-menu').style.display = 'none';
+    document.getElementById('main-menu').style.display = 'flex';
+}
+
 function showCentralMessage(text, duration = 2000) {
     const msg = document.getElementById('central-message');
     msg.innerHTML = text;

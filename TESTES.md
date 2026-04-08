@@ -30,8 +30,8 @@ ESTRUTURA.md             - Documentação técnica ✓
 
 3. GAMEPLAY:
    □ Personagens aparecem na tela
-   □ Player 1 (Sub-Zero) responde às teclas W/A/D/S/E/Q
-   □ Player 2 (Scorpion) responde às setas/Enter/Shift/Backspace
+   □ Player 1 (Backend-Frio) responde às teclas W/A/D/S/E/Q
+   □ Player 2 (Frontend-Quente) responde às setas/Enter/Shift/Backspace
    □ Gravidade está funcionando (personagens caem)
    □ Colisão com personagens funciona
    □ Barras de saúde desaparecem com dano
@@ -45,16 +45,16 @@ ESTRUTURA.md             - Documentação técnica ✓
    □ Pulo (W/Seta Cima) faz personagem pular
 
 5. HABILIDADES ESPECIAIS:
-   □ Sub-Zero: Baixo + Frente + Soco = gelo
-   □ Scorpion: Trás + Trás + Soco = arpão
+   □ Backend-Frio: Baixo + Frente + Soco = gelo
+   □ Frontend-Quente: Trás + Trás + Soco = arpão
    □ Projéteis se movem corretamente
-   □ Congelamento funciona (Sub-Zero no inimigo)
-   □ Puxão funciona (Scorpion puxa inimigo)
+   □ Congelamento funciona (Backend-Frio no inimigo)
+   □ Puxão funciona (Frontend-Quente puxa inimigo)
 
 6. FATALITY:
    □ Quando saúde = 0, aparece "FINISH HIM!"
-   □ Sub-Zero: Frente + Frente + Soco = congelamento + soco
-   □ Scorpion: Baixo + Baixo + Soco = jato de fogo
+   □ Backend-Frio: Frente + Frente + Soco = congelamento + soco
+   □ Frontend-Quente: Baixo + Baixo + Soco = jato de fogo
    □ Tela fica mais escura durante fatality
    □ Mensagem "WINS" + "FATALITY" aparece
 

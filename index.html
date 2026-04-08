@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mortal Kombat JS - V8 Colisão</title>
+    <title>Arena JS - V8 Colisão</title>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
@@ -11,13 +11,14 @@
 
 <div id="game-container">
     <div id="main-menu" class="overlay-screen">
-        <h1 class="title-text" style="font-size: 60px;">KOMBAT<br>ARENA JS V8</h1>
+        <h1 class="title-text" style="font-size: 60px;">ARENA JS<br>V8</h1>
         <button class="btn" onclick="startGame()">JOGAR</button>
         <button class="btn" style="background-color: #444;" onclick="openSettings()">CONFIGURAÇÕES</button>
+        <button class="btn" style="background-color: #444;" onclick="showCredits()">CRÉDITOS</button>
         
         <div class="controls-info">
             <div class="col-info">
-                <p style="color: #00ffff; font-size: 14px; margin-bottom: 10px;">❄️ SUB-ZERO</p>
+                <p style="color: #00ffff; font-size: 14px; margin-bottom: 10px;">❄️ BACKEND-FRIO</p>
                 <p>Gelo: Baixo ➔ Frente ➔ Soco</p>
                 <p>Rasteira: Baixo + Chute</p>
                 <hr style="border-color: #444; margin: 10px 0;">
@@ -25,7 +26,7 @@
                 <p>Frente ➔ Frente ➔ Soco</p>
             </div>
             <div class="col-info">
-                <p style="color: #ffcc00; font-size: 14px; margin-bottom: 10px;">🔥 SCORPION</p>
+                <p style="color: #ffcc00; font-size: 14px; margin-bottom: 10px;">🔥 FRONTEND-QUENTE</p>
                 <p>Arpão: Trás ➔ Trás ➔ Soco</p>
                 <p>Rasteira: Baixo + Chute</p>
                 <hr style="border-color: #444; margin: 10px 0;">
@@ -65,17 +66,32 @@
         <button class="btn" style="background-color: #333;" onclick="quitToMenu()">MENU PRINCIPAL</button>
     </div>
 
+    <div id="credits-menu" class="overlay-screen" style="display: none;">
+        <h1 class="title-text" style="font-size: 40px;">CRÉDITOS</h1>
+        <div class="credits-card">
+            <p>Desenvolvido por <strong>Hugo Francisco da Silva</strong></p>
+            <p>Professores: <strong>Hermilo Alves de Lunas</strong> e <strong>Marcos Reis Ferreira</strong></p>
+            <p>Projeto feito na aula do <strong>Senai</strong> em Regente Feijó, na instituição <strong>SESI</strong>.</p>
+            <p>Este projeto foi criado como parte das atividades da disciplina e do aprendizado em programação web.</p>
+            <div class="credits-links">
+                <a id="instagram-link" href="#" target="_blank">Instagram</a>
+                <a id="linkedin-link" href="#" target="_blank">LinkedIn</a>
+            </div>
+        </div>
+        <button class="btn" onclick="closeCredits()">FECHAR</button>
+    </div>
+
     <div id="ui-layer">
         <div class="player-info">
             <div class="health-bar-container"><div id="player-health" class="health-bar"></div></div>
             <div class="special-bar-container"><div id="player-special" class="special-bar"></div></div>
-            <div class="name-tag" style="color: #00ffff; text-shadow: 0 0 5px #00ffff;">SUB-ZERO</div>
+            <div class="name-tag" style="color: #00ffff; text-shadow: 0 0 5px #00ffff;">BACKEND-FRIO</div>
         </div>
         <div id="timer">60</div>
         <div class="player-info player2-info">
             <div class="health-bar-container"><div id="enemy-health" class="health-bar"></div></div>
             <div class="special-bar-container"><div id="enemy-special" class="special-bar"></div></div>
-            <div class="name-tag" style="color: #ffcc00; text-shadow: 0 0 5px #ffcc00;">SCORPION</div>
+            <div class="name-tag" style="color: #ffcc00; text-shadow: 0 0 5px #ffcc00;">FRONTEND-QUENTE</div>
         </div>
     </div>
 
@@ -98,6 +114,7 @@
         initGame();
         drawBackground();
         buildSettingsUI();
+            showCredits();
     });
 </script>
 </body>

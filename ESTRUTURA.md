@@ -67,7 +67,7 @@ game.js:
   - drawBackground() - renderiza cenário
   - checkMatchState() - verifica estado da partida
   - endGameWithWinner() - finaliza jogo
-  - executeSubZeroFatality(), executeScorpionFatality()
+  - executeBackendFrioFatality(), executeFrontendQuenteFatality()
   - attackCollision(), resolveCharacterCollision()
   - decreaseTimer(), processMovement(), handleAction()
   - animate() - LOOP PRINCIPAL

@@ -1,4 +1,4 @@
-# Mortal Kombat JS - V8 Colisão
+# Arena JS - V8 Colisão
 
 Um jogo de luta em 2D desenvolvido com JavaScript puro e Canvas HTML5.
 
@@ -21,19 +21,19 @@ PortalFreela/
 
 ## 🎮 Personagens
 
-### Sub-Zero
+### Backend-Frio
 - **Cor:** Azul (#0066cc)
 - **Habilidade Especial:** Projétil de Gelo
 - **Fatality:** Soco de congelamento duplo
 
-### Scorpion
+### Frontend-Quente
 - **Cor:** Laranja (#ffaa00)
 - **Habilidade Especial:** Arpão (puxa o inimigo)
 - **Fatality:** Jato de fogo
 
 ## ⌨️ Controles Padrão
 
-### Player 1 (Sub-Zero)
+### Player 1 (Backend-Frio)
 - **W** - Pular
 - **A/D** - Mover esquerda/direita
 - **S** - Agachar
@@ -41,7 +41,7 @@ PortalFreela/
 - **E** - Chute
 - **Q** - Defesa/Bloquear
 
-### Player 2 (Scorpion)
+### Player 2 (Frontend-Quente)
 - **SETA CIMA** - Pular
 - **SETA ESQ/DIR** - Mover esquerda/direita
 - **SETA BAIXO** - Agachar
@@ -51,11 +51,19 @@ PortalFreela/
 
 ## 🎯 Combos
 
-### Sub-Zero
+- **Gelo:** Baixo + Frente + Soco
+- **Fatality:** Frente + Frente + Soco (próximo do inimigo)
+### Backend-Frio
+- **Gelo:** Baixo + Frente + Soco
+- **Fatality:** Frente + Frente + Soco (próximo do inimigo)
 - **Gelo:** Baixo + Frente + Soco
 - **Fatality:** Frente + Frente + Soco (próximo do inimigo)
 
-### Scorpion
+- **Arpão:** Trás + Trás + Soco
+- **Fatality:** Baixo + Baixo + Soco (qualquer lugar)
+### Frontend-Quente
+- **Arpão:** Trás + Trás + Soco
+- **Fatality:** Baixo + Baixo + Soco (qualquer lugar)
 - **Arpão:** Trás + Trás + Soco
 - **Fatality:** Baixo + Baixo + Soco (qualquer lugar)
 

@@ -1,4 +1,4 @@
-# 🚀 MELHORIAS IMPLEMENTADAS NO MORTAL KOMBAT JS
+# 🚀 MELHORIAS IMPLEMENTADAS NO ARENA JS
 
 ## ✅ FUNCIONALIDADES ADICIONADAS
 
@@ -23,8 +23,8 @@
 - Modificadores por estado (bloqueio, agachado, aéreo)
 
 ### 5. **Novos Movimentos Especiais**
-- **Sub-Zero**: Slide Kick (Trás + Baixo + Chute)
-- **Scorpion**: Fireball (Baixo + Frente + Soco), Teleport Kick (Baixo + Trás + Soco)
+- **Backend-Frio**: Slide Kick (Trás + Baixo + Chute)
+- **Frontend-Quente**: Fireball (Baixo + Frente + Soco), Teleport Kick (Baixo + Trás + Soco)
 
 ### 6. **Sistema de Achievements**
 - "Primeiro Sangue" - Causar primeiro dano
@@ -39,13 +39,13 @@
 
 ## 🎮 NOVOS COMBOS DISPONÍVEIS
 
-### Sub-Zero
+### Backend-Frio
 - **Gelo**: Baixo + Frente + Soco
 - **Uppercut**: Baixo + Soco
 - **Slide**: Trás + Baixo + Chute
 - **Fatality**: Frente + Frente + Soco (próximo)
 
-### Scorpion
+### Frontend-Quente
 - **Arpão**: Trás + Trás + Soco
 - **Fireball**: Baixo + Frente + Soco
 - **Teleport**: Baixo + Trás + Soco
