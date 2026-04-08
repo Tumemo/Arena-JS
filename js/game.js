@@ -259,42 +259,78 @@ function executePythonTrovaoFatality(winner, loser) {
     }, 350);
 }
 
-function executeKernelCorteFatality(winner, loser) {
+function executeLoopDragaoFatality(winner, loser) {
     matchState = 'fatality';
     winner.velocity = {x:0, y:0};
     loser.velocity = {x:0, y:0};
     showCentralMessage("", 0);
     winner.isFacingRight = winner.position.x < loser.position.x;
+    winner.isAttacking = true;
+    winner.attackType = 'liu_flying_kick';
+    let bursts = 0;
+    const fx = setInterval(() => {
+        bursts++;
+        for(let i=0; i<20; i++) {
+            particles.push(new Particle(loser.position.x + 30, loser.position.y + 80, '#ff5f00', 'fire', 1.6));
+        }
+        if (bursts >= 6) {
+            clearInterval(fx);
+            loser.isBurned = true;
+            loser.color = '#220000';
+            loser.baseColor = '#140000';
+            loser.skinColor = '#3b1a1a';
+            loser.isKnockedDown = true;
+            loser.knockdownTimer = Infinity;
+            setTimeout(() => endGameWithWinner(winner, true), 1200);
+        }
+    }, 180);
+}
 
-    setTimeout(() => {
-        winner.isAttacking = true;
-        winner.attackType = 'spin_dash';
-        let spinCount = 0;
-        const spinFx = setInterval(() => {
-            spinCount++;
-            for(let i=0; i<24; i++) {
-                particles.push(new Particle(
-                    loser.position.x + 30 + (Math.random() - 0.5) * 30,
-                    loser.position.y + 30 + Math.random() * 100,
-                    '#ff2b2b',
-                    'blood',
-                    1.4
-                ));
-            }
-            loser.isHit = true;
-            loser.hitTimer = 8;
-            if (spinCount >= 6) {
-                clearInterval(spinFx);
-                loser.isBurned = true;
-                loser.color = '#240000';
-                loser.skinColor = '#522020';
-                loser.baseColor = '#120000';
-                loser.isKnockedDown = true;
-                loser.knockdownTimer = Infinity;
-                setTimeout(() => endGameWithWinner(winner, true), 1200);
-            }
-        }, 160);
-    }, 300);
+function executeGitanaFatality(winner, loser) {
+    matchState = 'fatality';
+    winner.velocity = {x:0, y:0};
+    loser.velocity = {x:0, y:0};
+    showCentralMessage("", 0);
+    winner.isFacingRight = winner.position.x < loser.position.x;
+    winner.isAttacking = true;
+    winner.attackType = 'special';
+    let slashes = 0;
+    const fx = setInterval(() => {
+        slashes++;
+        for(let i=0; i<18; i++) {
+            particles.push(new Particle(loser.position.x + 30, loser.position.y + 50, '#9ad0ff', 'spark', 1.2));
+            particles.push(new Particle(loser.position.x + 30, loser.position.y + 50, '#ff0000', 'blood', 1.2));
+        }
+        if (slashes >= 6) {
+            clearInterval(fx);
+            loser.isShattered = true;
+            setTimeout(() => endGameWithWinner(winner, true), 900);
+        }
+    }, 150);
+}
+
+function executeMilenaByteFatality(winner, loser) {
+    matchState = 'fatality';
+    winner.velocity = {x:0, y:0};
+    loser.velocity = {x:0, y:0};
+    showCentralMessage("", 0);
+    winner.isFacingRight = winner.position.x < loser.position.x;
+    winner.isAttacking = true;
+    winner.attackType = 'mileena_rush';
+    let stabs = 0;
+    const fx = setInterval(() => {
+        stabs++;
+        for(let i=0; i<20; i++) {
+            particles.push(new Particle(loser.position.x + 30, loser.position.y + 70, '#f057ff', 'glow', 1.2));
+            particles.push(new Particle(loser.position.x + 30, loser.position.y + 70, '#ff0000', 'blood', 1.3));
+        }
+        if (stabs >= 7) {
+            clearInterval(fx);
+            loser.isKnockedDown = true;
+            loser.knockdownTimer = Infinity;
+            setTimeout(() => endGameWithWinner(winner, true), 1000);
+        }
+    }, 145);
 }
 
 function attackCollision({ attacker, target }) {
@@ -413,8 +449,14 @@ function handleAction(fighter, cmd) {
         } else if (fighter.id === 'python-trovao' && fighter.checkCombo([forward, forward, 'kick']) && isClose) {
             executePythonTrovaoFatality(fighter, opponent);
             return;
-        } else if (fighter.id === 'kernel-corte' && fighter.checkCombo([back, back, 'kick']) && isClose) {
-            executeKernelCorteFatality(fighter, opponent);
+        } else if (fighter.id === 'loop-dragao' && fighter.checkCombo([forward, forward, 'kick']) && isClose) {
+            executeLoopDragaoFatality(fighter, opponent);
+            return;
+        } else if (fighter.id === 'gitana' && fighter.checkCombo([back, back, 'kick']) && isClose) {
+            executeGitanaFatality(fighter, opponent);
+            return;
+        } else if (fighter.id === 'milena-byte' && fighter.checkCombo(['down', 'down', 'kick']) && isClose) {
+            executeMilenaByteFatality(fighter, opponent);
             return;
         }
     }
@@ -428,16 +470,24 @@ function handleAction(fighter, cmd) {
             fighter.specialSpear();
         } else if (!fighter.isAirborne && fighter.id === 'python-trovao' && fighter.checkCombo(['down', forward, 'punch'])) {
             fighter.specialLightning();
-        } else if (!fighter.isAirborne && fighter.id === 'kernel-corte' && fighter.checkCombo([back, back, 'punch'])) {
-            fighter.specialLaserOrb();
+        } else if (!fighter.isAirborne && fighter.id === 'loop-dragao' && fighter.checkCombo(['down', forward, 'punch'])) {
+            fighter.specialFireball();
+        } else if (!fighter.isAirborne && fighter.id === 'gitana' && fighter.checkCombo([back, back, 'punch'])) {
+            fighter.specialFanBlade();
+        } else if (!fighter.isAirborne && fighter.id === 'milena-byte' && fighter.checkCombo([back, back, 'punch'])) {
+            fighter.specialSaiOrb();
         } else {
             fighter.attackPunch();
         }
     } else if (cmd === 'kick') {
         if (!fighter.isAirborne && fighter.id === 'python-trovao' && fighter.checkCombo([back, forward, 'kick'])) {
             fighter.specialSlideDash();
-        } else if (!fighter.isAirborne && fighter.id === 'kernel-corte' && fighter.checkCombo(['down', forward, 'kick'])) {
+        } else if (!fighter.isAirborne && fighter.id === 'loop-dragao' && fighter.checkCombo([forward, forward, 'kick'])) {
+            fighter.specialFlyingKick();
+        } else if (!fighter.isAirborne && fighter.id === 'gitana' && fighter.checkCombo(['down', forward, 'kick'])) {
             fighter.specialSpinDash();
+        } else if (!fighter.isAirborne && fighter.id === 'milena-byte' && fighter.checkCombo(['down', forward, 'kick'])) {
+            fighter.specialMileenaRush();
         } else {
             fighter.attackKick();
         }
@@ -505,8 +555,14 @@ function animate() {
                     target.takeHit(5, 'normal');
                 } else if (proj.type === 'lightning') {
                     target.takeHit(11, 'normal');
-                } else if (proj.type === 'laser') {
-                    target.takeHit(14, 'normal');
+                } else if (proj.type === 'fireball_red') {
+                    target.takeHit(13, 'normal');
+                } else if (proj.type === 'green_arc') {
+                    target.takeHit(12, 'normal');
+                } else if (proj.type === 'fan_blade') {
+                    target.takeHit(12, 'normal');
+                } else if (proj.type === 'sai_orb') {
+                    target.takeHit(11, 'normal');
                 }
                 for(let j=0; j<15; j++) {
                     particles.push(new Particle(proj.position.x, proj.position.y, proj.color, 'glow'));

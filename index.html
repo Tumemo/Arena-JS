@@ -16,33 +16,6 @@
         <button class="btn" style="background-color: #444;" onclick="openSettings()">CONFIGURAÇÕES</button>
         <button class="btn" style="background-color: #444;" onclick="showCredits()">CRÉDITOS</button>
         
-        <div class="controls-info">
-            <div class="col-info">
-                <p style="color: #00ffff; font-size: 14px; margin-bottom: 10px;">❄️ BACKEND-FRIO</p>
-                <p>Gelo: Baixo ➔ Frente ➔ Soco</p>
-                <p>Rasteira: Baixo + Chute</p>
-                <hr style="border-color: #444; margin: 10px 0;">
-                <p style="color: #f00;"><strong>FATALITY (PERTO):</strong></p>
-                <p>Frente ➔ Frente ➔ Soco</p>
-            </div>
-            <div class="col-info">
-                <p style="color: #ffcc00; font-size: 14px; margin-bottom: 10px;">🔥 FRONTEND-QUENTE</p>
-                <p>Arpão: Trás ➔ Trás ➔ Soco</p>
-                <p>Rasteira: Baixo + Chute</p>
-                <hr style="border-color: #444; margin: 10px 0;">
-                <p style="color: #f00;"><strong>FATALITY (QUALQUER LUGAR):</strong></p>
-                <p>Baixo ➔ Baixo ➔ Soco</p>
-            </div>
-            <div class="col-info">
-                <p style="color: #9fd8ff; font-size: 14px; margin-bottom: 10px;">⚡ PYTHON-TROVAO</p>
-                <p>Raio: Baixo ➔ Frente ➔ Soco</p>
-                <p>Investida deitada: Trás ➔ Frente ➔ Chute</p>
-                <hr style="border-color: #444; margin: 10px 0;">
-                <p style="color: #60ffb8; font-size: 14px; margin-bottom: 10px;">🟢 KERNEL-CORTE</p>
-                <p>Bola laser: Trás ➔ Trás ➔ Soco</p>
-                <p>Avanço rodando: Baixo ➔ Frente ➔ Chute</p>
-            </div>
-        </div>
     </div>
 
     <div id="character-select-menu" class="overlay-screen" style="display: none;">
@@ -51,12 +24,15 @@
             <div class="char-select-col">
                 <h3 style="color: #00ffff;">PLAYER 1</h3>
                 <div id="p1-char-list" class="char-list"></div>
+                <div id="p1-char-preview" class="char-preview"></div>
             </div>
             <div class="char-select-col">
                 <h3 style="color: #ffcc00;">PLAYER 2</h3>
                 <div id="p2-char-list" class="char-list"></div>
+                <div id="p2-char-preview" class="char-preview"></div>
             </div>
         </div>
+        <p class="same-char-warning">Teclado na selecao: A/D ou Setas para trocar, TAB muda P1/P2.</p>
         <p id="same-char-warning" class="same-char-warning" style="display:none;">Mesmo personagem selecionado: P2 entra com tom mais escuro.</p>
         <div class="char-select-actions">
             <button id="start-match-btn" class="btn" onclick="startGame()">INICIAR LUTA</button>
@@ -160,6 +136,7 @@
         drawBackground();
         buildSettingsUI();
         renderCharacterSelection();
+        showCredits();
     });
 </script>
 </body>

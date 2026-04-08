@@ -37,6 +37,9 @@ function getCharacterByIdUI(id) {
     return characterRoster.find((char) => char.id === id) || characterRoster[0];
 }
 
+let selectionActiveSlot = 'p1';
+let selectionCursor = { p1: 0, p2: 1 };
+
 function renderCharacterSelection() {
     const p1Container = document.getElementById('p1-char-list');
     const p2Container = document.getElementById('p2-char-list');
@@ -46,7 +49,10 @@ function renderCharacterSelection() {
 
     const createCard = (char, slot) => {
         const isSelected = selectedCharacters[slot] === char.id;
-        return `<button class="char-card ${isSelected ? 'selected' : ''}" onclick="selectCharacter('${slot}', '${char.id}')">
+        const cursorIndex = selectionCursor[slot];
+        const thisIndex = characterRoster.findIndex((item) => item.id === char.id);
+        const isFocused = selectionActiveSlot === slot && cursorIndex === thisIndex;
+        return `<button class="char-card ${isSelected ? 'selected' : ''} ${isFocused ? 'focused' : ''}" onclick="selectCharacter('${slot}', '${char.id}')">
             <span class="char-name">${char.name}</span>
             <span class="char-special">${getSpecialText(char.id)}</span>
         </button>`;
@@ -58,13 +64,16 @@ function renderCharacterSelection() {
     const sameCharacter = selectedCharacters.p1 === selectedCharacters.p2;
     sameCharWarning.style.display = sameCharacter ? 'block' : 'none';
     startBtn.disabled = !selectedCharacters.p1 || !selectedCharacters.p2;
+    renderCharacterPreview();
 }
 
 function getSpecialText(characterId) {
     if (characterId === 'backend-frio') return 'Especial: gelo + freeze';
     if (characterId === 'frontend-quente') return 'Especial: arpao + puxao';
     if (characterId === 'python-trovao') return 'Especial: raio + dash deitado';
-    if (characterId === 'kernel-corte') return 'Especial: laser + dash giratorio';
+    if (characterId === 'loop-dragao') return 'Especial: bola de fogo + voadora';
+    if (characterId === 'gitana') return 'Especial: leque + giro de corte';
+    if (characterId === 'milena-byte') return 'Especial: orb roxa + rush';
     return 'Especial unico';
 }
 
@@ -90,11 +99,25 @@ function getCommandListByCharacter(characterId) {
             'Fatality (perto): Frente -> Frente -> Chute'
         ];
     }
-    if (characterId === 'kernel-corte') {
+    if (characterId === 'loop-dragao') {
         return [
-            'Especial (bola vermelha): Tras -> Tras -> Soco',
-            'Especial (avanco rodando): Baixo -> Frente -> Chute',
+            'Especial (bola de fogo): Baixo -> Frente -> Soco',
+            'Especial (voadora): Frente -> Frente -> Chute',
+            'Fatality (perto): Frente -> Frente -> Chute'
+        ];
+    }
+    if (characterId === 'gitana') {
+        return [
+            'Especial (leque): Tras -> Tras -> Soco',
+            'Especial (giro): Baixo -> Frente -> Chute',
             'Fatality (perto): Tras -> Tras -> Chute'
+        ];
+    }
+    if (characterId === 'milena-byte') {
+        return [
+            'Especial (orb roxa): Tras -> Tras -> Soco',
+            'Especial (rush): Baixo -> Frente -> Chute',
+            'Fatality (perto): Baixo -> Baixo -> Chute'
         ];
     }
     return ['Sem comandos'];
@@ -102,12 +125,52 @@ function getCommandListByCharacter(characterId) {
 
 function selectCharacter(slot, characterId) {
     selectedCharacters[slot] = characterId;
+    selectionCursor[slot] = characterRoster.findIndex((char) => char.id === characterId);
     renderCharacterSelection();
 }
+
+function renderCharacterPreview() {
+    const p1 = getCharacterByIdUI(selectedCharacters.p1);
+    const p2 = getCharacterByIdUI(selectedCharacters.p2);
+    const p1Preview = document.getElementById('p1-char-preview');
+    const p2Preview = document.getElementById('p2-char-preview');
+    if (!p1Preview || !p2Preview) return;
+    p1Preview.innerHTML = `<div class="preview-avatar" style="background:${p1.color}; border-color:${p1.accent};"></div><span>${p1.name}</span>`;
+    p2Preview.innerHTML = `<div class="preview-avatar" style="background:${p2.color}; border-color:${p2.accent};"></div><span>${p2.name}</span>`;
+}
+
+function moveSelectionCursor(slot, direction) {
+    const next = (selectionCursor[slot] + direction + characterRoster.length) % characterRoster.length;
+    selectionCursor[slot] = next;
+    selectedCharacters[slot] = characterRoster[next].id;
+    renderCharacterSelection();
+}
+
+window.addEventListener('keydown', (event) => {
+    const menu = document.getElementById('character-select-menu');
+    if (!menu || menu.style.display !== 'flex') return;
+    const key = event.key.toLowerCase();
+    if (key === 'tab') {
+        event.preventDefault();
+        selectionActiveSlot = selectionActiveSlot === 'p1' ? 'p2' : 'p1';
+        renderCharacterSelection();
+        return;
+    }
+    if (key === 'w' || key === 's' || key === 'arrowup' || key === 'arrowdown') {
+        selectionActiveSlot = selectionActiveSlot === 'p1' ? 'p2' : 'p1';
+        renderCharacterSelection();
+        return;
+    }
+    if (key === 'a' || key === 'arrowleft') moveSelectionCursor(selectionActiveSlot, -1);
+    if (key === 'd' || key === 'arrowright') moveSelectionCursor(selectionActiveSlot, 1);
+});
 
 function openCharacterSelect() {
     document.getElementById('main-menu').style.display = 'none';
     document.getElementById('character-select-menu').style.display = 'flex';
+    selectionActiveSlot = 'p1';
+    selectionCursor.p1 = characterRoster.findIndex((char) => char.id === selectedCharacters.p1);
+    selectionCursor.p2 = characterRoster.findIndex((char) => char.id === selectedCharacters.p2);
     renderCharacterSelection();
 }
 

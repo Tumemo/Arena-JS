@@ -175,6 +175,58 @@ class Fighter {
         }));
     }
 
+    specialFireball() {
+        if(this.attackCooldown || this.isImmobilized || this.specialCooldown > 0 || this.isBlocking) return;
+        this.executeAttack(0,0,{x:0,y:0}, 'special', 0, 820);
+        this.specialCooldown = this.maxSpecialCooldown;
+        projectiles.push(new Projectile({
+            position: { x: this.position.x + (this.isFacingRight ? this.width : -30), y: this.position.y + 40 },
+            velocity: { x: this.isFacingRight ? 18 : -18, y: 0 },
+            color: '#ff4a00',
+            type: 'fireball_red',
+            owner: this
+        }));
+    }
+
+    specialGreenArc() {
+        if(this.attackCooldown || this.isImmobilized || this.specialCooldown > 0 || this.isBlocking) return;
+        this.executeAttack(0,0,{x:0,y:0}, 'special', 0, 900);
+        this.specialCooldown = this.maxSpecialCooldown;
+        projectiles.push(new Projectile({
+            position: { x: this.position.x + (this.isFacingRight ? this.width : -30), y: this.position.y + 35 },
+            velocity: { x: this.isFacingRight ? 12 : -12, y: -11 },
+            color: '#4cff61',
+            type: 'green_arc',
+            owner: this
+        }));
+    }
+
+    specialFanBlade() {
+        if(this.attackCooldown || this.isImmobilized || this.specialCooldown > 0 || this.isBlocking) return;
+        this.executeAttack(0,0,{x:0,y:0}, 'special', 0, 850);
+        this.specialCooldown = this.maxSpecialCooldown;
+        projectiles.push(new Projectile({
+            position: { x: this.position.x + (this.isFacingRight ? this.width : -30), y: this.position.y + 35 },
+            velocity: { x: this.isFacingRight ? 16 : -16, y: 0 },
+            color: '#9ad0ff',
+            type: 'fan_blade',
+            owner: this
+        }));
+    }
+
+    specialSaiOrb() {
+        if(this.attackCooldown || this.isImmobilized || this.specialCooldown > 0 || this.isBlocking) return;
+        this.executeAttack(0,0,{x:0,y:0}, 'special', 0, 850);
+        this.specialCooldown = this.maxSpecialCooldown;
+        projectiles.push(new Projectile({
+            position: { x: this.position.x + (this.isFacingRight ? this.width : -30), y: this.position.y + 45 },
+            velocity: { x: this.isFacingRight ? 14 : -14, y: -6 },
+            color: '#f057ff',
+            type: 'sai_orb',
+            owner: this
+        }));
+    }
+
     beginDashSpecial(kind, speed, damage, duration, stopOnHit = false) {
         if (this.attackCooldown || this.isImmobilized || this.specialCooldown > 0 || this.isBlocking) return;
         this.executeAttack(130, 70, { x: 0, y: 70 }, kind, damage, 1000);
@@ -192,6 +244,18 @@ class Fighter {
 
     specialSpinDash() {
         this.beginDashSpecial('spin_dash', 14, 20, 26, false);
+    }
+
+    specialFlyingKick() {
+        this.beginDashSpecial('liu_flying_kick', 15, 19, 28, true);
+    }
+
+    specialShadowKick() {
+        this.beginDashSpecial('cage_shadow_kick', 16, 18, 22, true);
+    }
+
+    specialMileenaRush() {
+        this.beginDashSpecial('mileena_rush', 15, 19, 60, true);
     }
 
     stopDashSpecial() {
@@ -254,6 +318,25 @@ class Fighter {
             ctx.fillRect(-18, drawY + 36, 36, 12);
             ctx.fillStyle = this.accent;
             ctx.fillRect(-20, drawY + 38, 40, 5);
+        } else if (this.archetype === 'shaolin') {
+            ctx.fillStyle = '#1f1f1f';
+            ctx.fillRect(-12, drawY + 2, 24, 8); // cabelo
+            ctx.fillStyle = '#ff6a00';
+            ctx.fillRect(-22, drawY + 62, 44, 6); // faixa
+        } else if (this.archetype === 'kitana_style') {
+            ctx.fillStyle = '#0f244b';
+            ctx.fillRect(-16, drawY + 0, 32, 10);
+            ctx.fillStyle = '#9ad0ff';
+            ctx.fillRect(-22, drawY + 64, 44, 5);
+            ctx.fillStyle = '#dceeff';
+            ctx.fillRect(-24, drawY + 38, 48, 3);
+        } else if (this.archetype === 'mileena_style') {
+            ctx.fillStyle = '#3a114f';
+            ctx.fillRect(-16, drawY + 0, 32, 10);
+            ctx.fillStyle = '#f057ff';
+            ctx.fillRect(-22, drawY + 64, 44, 5);
+            ctx.fillStyle = '#ffd2ff';
+            ctx.fillRect(-18, drawY + 40, 36, 3);
         }
     }
 
@@ -357,6 +440,29 @@ class Fighter {
                 legFrontY = -20;
             }
             else if (this.attackType === 'special') { armFrontAngle = -1.5; armBackAngle = -1.5; }
+            else if (this.attackType === 'liu_flying_kick') {
+                drawY = -150;
+                legFrontAngle = -1.4;
+                legBackAngle = -0.2;
+                armFrontAngle = -0.9;
+                armBackAngle = -0.7;
+                ctx.rotate(-0.08);
+            }
+            else if (this.attackType === 'cage_shadow_kick') {
+                drawY = -153;
+                legFrontAngle = -1.55;
+                legBackAngle = 0.2;
+                armFrontAngle = -0.4;
+                armBackAngle = 0.1;
+            }
+            else if (this.attackType === 'mileena_rush') {
+                drawY = -150;
+                legFrontAngle = -1.1;
+                legBackAngle = -0.7;
+                armFrontAngle = -1.4;
+                armBackAngle = -1.1;
+                ctx.rotate(-0.05);
+            }
             else if (this.attackType === 'slide_dash') {
                 drawY = -148;
                 legFrontAngle = -1.05;
@@ -402,6 +508,14 @@ class Fighter {
         ctx.lineTo(25, drawY + 100);
         ctx.lineTo(-25, drawY + 100);
         ctx.fill();
+
+        if (this.archetype === 'shaolin' || this.archetype === 'movie_star') {
+            // Tronco sem camisa e calca distinta
+            ctx.fillStyle = this.skinColor;
+            ctx.fillRect(-18, drawY + 32, 36, 30);
+            ctx.fillStyle = this.color;
+            ctx.fillRect(-22, drawY + 62, 44, 38);
+        }
 
         if(!this.isBurned) {
             ctx.fillStyle = '#000';

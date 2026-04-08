@@ -30,13 +30,31 @@ const characterRoster = [
         archetype: 'storm_python'
     },
     {
-        id: 'kernel-corte',
-        name: 'Kernel-Corte',
-        color: '#3a3a3a',
-        baseColor: '#0f0f0f',
-        skinColor: '#bca285',
-        accent: '#ff1a1a',
-        archetype: 'cyber_commando'
+        id: 'loop-dragao',
+        name: 'Loop-Dragao',
+        color: '#cc2222',
+        baseColor: '#3a0f0f',
+        skinColor: '#d6a67c',
+        accent: '#ff6a00',
+        archetype: 'shaolin'
+    },
+    {
+        id: 'gitana',
+        name: 'Gitana',
+        color: '#4a7ddc',
+        baseColor: '#132344',
+        skinColor: '#d3a387',
+        accent: '#80b8ff',
+        archetype: 'kitana_style'
+    },
+    {
+        id: 'milena-byte',
+        name: 'Milena-Byte',
+        color: '#9229c7',
+        baseColor: '#2d0d42',
+        skinColor: '#d09b83',
+        accent: '#f057ff',
+        archetype: 'mileena_style'
     }
 ];
 let selectedCharacters = {

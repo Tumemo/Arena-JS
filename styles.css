@@ -241,6 +241,11 @@ canvas {
     box-shadow: 0 0 16px rgba(0,255,255,0.5);
 }
 
+.char-card.focused {
+    outline: 2px solid #fff;
+    outline-offset: 1px;
+}
+
 .char-name {
     display: block;
     font-size: 12px;
@@ -265,6 +270,24 @@ canvas {
 .char-select-actions {
     display: flex;
     gap: 16px;
+}
+
+.char-preview {
+    margin-top: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 11px;
+    color: #ddd;
+    min-height: 36px;
+}
+
+.preview-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    box-shadow: 0 0 10px rgba(255,255,255,0.25);
 }
 
 .pause-commands-panel {
