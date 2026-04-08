@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mortal Kombat JS - V8 Colisão</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div id="game-container">
+    <div id="main-menu" class="overlay-screen">
+        <h1 class="title-text" style="font-size: 60px;">KOMBAT<br>ARENA JS V8</h1>
+        <button class="btn" onclick="startGame()">JOGAR</button>
+        <button class="btn" style="background-color: #444;" onclick="openSettings()">CONFIGURAÇÕES</button>
+        
+        <div class="controls-info">
+            <div class="col-info">
+                <p style="color: #00ffff; font-size: 14px; margin-bottom: 10px;">❄️ SUB-ZERO</p>
+                <p>Gelo: Baixo ➔ Frente ➔ Soco</p>
+                <p>Rasteira: Baixo + Chute</p>
+                <hr style="border-color: #444; margin: 10px 0;">
+                <p style="color: #f00;"><strong>FATALITY (PERTO):</strong></p>
+                <p>Frente ➔ Frente ➔ Soco</p>
+            </div>
+            <div class="col-info">
+                <p style="color: #ffcc00; font-size: 14px; margin-bottom: 10px;">🔥 SCORPION</p>
+                <p>Arpão: Trás ➔ Trás ➔ Soco</p>
+                <p>Rasteira: Baixo + Chute</p>
+                <hr style="border-color: #444; margin: 10px 0;">
+                <p style="color: #f00;"><strong>FATALITY (QUALQUER LUGAR):</strong></p>
+                <p>Baixo ➔ Baixo ➔ Soco</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="settings-menu" class="overlay-screen">
+        <h1 class="title-text" style="color: #fff; font-size: 30px;">CONFIGURAÇÕES</h1>
+        <div class="time-setting">
+            <label>TEMPO DE ROUND:</label>
+            <select id="time-select">
+                <option value="30">30 Segundos</option>
+                <option value="60" selected>60 Segundos</option>
+                <option value="90">90 Segundos</option>
+                <option value="Infinity">Infinito (∞)</option>
+            </select>
+        </div>
+        <div class="settings-grid">
+            <div class="settings-col">
+                <h3 style="color: #00ffff;">CONTROLES P1</h3>
+                <div id="p1-controls-list"></div>
+            </div>
+            <div class="settings-col">
+                <h3 style="color: #ffcc00;">CONTROLES P2</h3>
+                <div id="p2-controls-list"></div>
+            </div>
+        </div>
+        <button class="btn" onclick="closeSettings()">VOLTAR E SALVAR</button>
+    </div>
+
+    <div id="pause-menu" class="overlay-screen">
+        <h1 class="title-text" style="color: #fff;">PAUSADO</h1>
+        <button class="btn" onclick="togglePause()">CONTINUAR</button>
+        <button class="btn" style="background-color: #333;" onclick="quitToMenu()">MENU PRINCIPAL</button>
+    </div>
+
+    <div id="ui-layer">
+        <div class="player-info">
+            <div class="health-bar-container"><div id="player-health" class="health-bar"></div></div>
+            <div class="special-bar-container"><div id="player-special" class="special-bar"></div></div>
+            <div class="name-tag" style="color: #00ffff; text-shadow: 0 0 5px #00ffff;">SUB-ZERO</div>
+        </div>
+        <div id="timer">60</div>
+        <div class="player-info player2-info">
+            <div class="health-bar-container"><div id="enemy-health" class="health-bar"></div></div>
+            <div class="special-bar-container"><div id="enemy-special" class="special-bar"></div></div>
+            <div class="name-tag" style="color: #ffcc00; text-shadow: 0 0 5px #ffcc00;">SCORPION</div>
+        </div>
+    </div>
+
+    <div id="central-message">FIGHT!</div>
+    <div class="blood-overlay" id="blood-overlay"></div>
+    <canvas id="gameCanvas"></canvas>
+</div>
+
+
+<script src="js/config.js"></script>
+<script src="js/particle.js"></script>
+<script src="js/projectile.js"></script>
+<script src="js/fighter.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/game.js"></script>
+<script src="js/input.js"></script>
+<script>
+    // Inicializa o jogo quando o DOM está pronto
+    document.addEventListener('DOMContentLoaded', () => {
+        initGame();
+        drawBackground();
+        buildSettingsUI();
+    });
+</script>
+</body>
+</body>
+</html>
