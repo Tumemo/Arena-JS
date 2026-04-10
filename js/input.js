@@ -53,6 +53,7 @@ let lastGamepadTickAt = 0;
 let lastMissingP2WarningAt = 0;
 const gamepadDeadzone = 0.45;
 const menuRepeatMs = 170;
+let settingsCursor = { p1: 0, p2: 0 };
 
 function getPreviousAxes(pad) {
     if (!pad) return { h: 0, v: 0 };
@@ -93,6 +94,13 @@ function getVisibleOverlay() {
 
 function getMenuButtons(overlay) {
     if (!overlay) return [];
+    if (overlay.id === 'pause-menu') {
+        const panel = document.getElementById('pause-commands-panel');
+        if (panel && panel.style.display === 'block') {
+            const panelButtons = Array.from(panel.querySelectorAll('button.btn, button.key-btn'));
+            return panelButtons.filter((btn) => btn.offsetParent !== null && !btn.disabled);
+        }
+    }
     const buttons = Array.from(overlay.querySelectorAll('button.btn, button.key-btn'));
     return buttons.filter((btn) => btn.offsetParent !== null && !btn.disabled);
 }
@@ -128,18 +136,30 @@ function handleCharacterSelectGamepad(pad, pressedNow, slot) {
     const canRepeat = (now - lastMenuMoveAt) > menuRepeatMs;
 
     if ((left || up) && canRepeat) {
-        moveSelectionCursor(slot, -1);
+        if (left) moveSelectionCursor(slot, -1, 0);
+        if (up) moveSelectionCursor(slot, 0, -1);
         lastMenuMoveAt = now;
     }
     if ((right || down) && canRepeat) {
-        moveSelectionCursor(slot, 1);
+        if (right) moveSelectionCursor(slot, 1, 0);
+        if (down) moveSelectionCursor(slot, 0, 1);
         lastMenuMoveAt = now;
     }
     if ((pressedNow[4] || pressedNow[5] || pressedNow[3]) && canRepeat) setSelectionSlot(slot);
-    if (pressedNow[0]) startGame(); // A
+    if (pressedNow[0]) toggleReady(slot); // A
+    if (pressedNow[9] && canStartMatch()) startGame(); // Start
     if (pressedNow[1]) closeCharacterSelect(); // B
     prevAxes.h = h;
     prevAxes.v = v;
+}
+
+function getPadForPlayer(slot, p1Pad, p2Pad) {
+    const source = (inputSource && inputSource[slot]) ? inputSource[slot] : (slot === 'p1' ? 'auto' : 'keyboard');
+    if (source === 'keyboard') return null;
+    if (source === 'pad1') return p1Pad || null;
+    if (source === 'pad2') return p2Pad || null;
+    if (slot === 'p1') return p1Pad || p2Pad || null;
+    return p2Pad || null;
 }
 
 function handleOverlayGamepadNavigation(overlay, pad, pressedNow) {
@@ -172,27 +192,90 @@ function handleOverlayGamepadNavigation(overlay, pad, pressedNow) {
     if (pressedNow[1]) { // B
         if (overlay.id === 'settings-menu') closeSettings();
         else if (overlay.id === 'credits-menu') closeCredits();
-        else if (overlay.id === 'pause-menu') togglePause();
-    }
-
-    // Ajuste do tempo no menu de configuracoes
-    if (overlay.id === 'settings-menu') {
-        const timeSelect = document.getElementById('time-select');
-        if (!timeSelect) return;
-        const h = pad.axes[0] || 0;
-        const left = pressedNow[14] || (h < -gamepadDeadzone && prevAxes.h >= -gamepadDeadzone);
-        const right = pressedNow[15] || (h > gamepadDeadzone && prevAxes.h <= gamepadDeadzone);
-        if ((left || right) && canRepeat) {
-            const options = Array.from(timeSelect.options);
-            let idx = options.findIndex((opt) => opt.value === timeSelect.value);
-            if (left) idx = Math.max(0, idx - 1);
-            if (right) idx = Math.min(options.length - 1, idx + 1);
-            timeSelect.value = options[idx].value;
-            lastMenuMoveAt = now;
+        else if (overlay.id === 'pause-menu') {
+            const panel = document.getElementById('pause-commands-panel');
+            if (panel && panel.style.display === 'block') closePauseCommandList();
+            else togglePause();
         }
     }
+
     prevAxes.h = pad.axes[0] || 0;
     prevAxes.v = pad.axes[1] || 0;
+}
+
+function getSettingsControlsBySlot(slot) {
+    const controls = [];
+    const timeSelect = document.getElementById('time-select');
+    const sfxSelect = document.getElementById('sfx-select');
+    if (timeSelect) controls.push(timeSelect);
+    if (sfxSelect) controls.push(sfxSelect);
+    const sourceSelect = document.getElementById(slot === 'p1' ? 'p1-input-source' : 'p2-input-source');
+    if (sourceSelect) controls.push(sourceSelect);
+    const listId = slot === 'p1' ? 'p1-controls-list' : 'p2-controls-list';
+    const list = document.getElementById(listId);
+    if (list) {
+        const keyButtons = Array.from(list.querySelectorAll('button.key-btn'));
+        controls.push(...keyButtons);
+    }
+    const closeBtn = document.querySelector('#settings-menu button.btn');
+    if (closeBtn) controls.push(closeBtn);
+    return controls;
+}
+
+function updateSettingsFocus(slot) {
+    const controls = getSettingsControlsBySlot(slot);
+    if (!controls.length) return;
+    if (settingsCursor[slot] < 0) settingsCursor[slot] = controls.length - 1;
+    if (settingsCursor[slot] >= controls.length) settingsCursor[slot] = 0;
+    const color = slot === 'p1' ? '#00ffff' : '#ffcc00';
+    controls.forEach((el, idx) => {
+        el.style.outline = idx === settingsCursor[slot] ? `3px solid ${color}` : '';
+        el.style.outlineOffset = idx === settingsCursor[slot] ? '2px' : '';
+    });
+}
+
+function cycleSelectElement(selectEl, step) {
+    const options = Array.from(selectEl.options || []);
+    if (!options.length) return;
+    let idx = options.findIndex((opt) => opt.value === selectEl.value);
+    idx = Math.max(0, Math.min(options.length - 1, idx + step));
+    selectEl.value = options[idx].value;
+}
+
+function handleSettingsGamepadBySlot(pad, pressedNow, slot) {
+    if (!pad) return;
+    const controls = getSettingsControlsBySlot(slot);
+    if (!controls.length) return;
+    const prevAxes = getPreviousAxes(pad);
+    const now = Date.now();
+    const v = pad.axes[1] || 0;
+    const h = pad.axes[0] || 0;
+    const down = pressedNow[13] || (v > gamepadDeadzone && prevAxes.v <= gamepadDeadzone);
+    const up = pressedNow[12] || (v < -gamepadDeadzone && prevAxes.v >= -gamepadDeadzone);
+    const left = pressedNow[14] || (h < -gamepadDeadzone && prevAxes.h >= -gamepadDeadzone);
+    const right = pressedNow[15] || (h > gamepadDeadzone && prevAxes.h <= gamepadDeadzone);
+    const canRepeat = (now - lastMenuMoveAt) > menuRepeatMs;
+
+    if (down && canRepeat) {
+        settingsCursor[slot]++;
+        lastMenuMoveAt = now;
+    }
+    if (up && canRepeat) {
+        settingsCursor[slot]--;
+        lastMenuMoveAt = now;
+    }
+    updateSettingsFocus(slot);
+
+    const focused = controls[Math.max(0, Math.min(controls.length - 1, settingsCursor[slot]))];
+    if ((left || right) && canRepeat && focused && focused.tagName === 'SELECT') {
+        cycleSelectElement(focused, left ? -1 : 1);
+        lastMenuMoveAt = now;
+    }
+    if (pressedNow[0] && focused) focused.click();
+    if (pressedNow[1]) closeSettings();
+
+    prevAxes.h = h;
+    prevAxes.v = v;
 }
 
 function getMappedPressed(pad, keyConfig, action) {
@@ -302,7 +385,7 @@ function gamepadLoop() {
         // Durante bind, nao navega menu: captura botao/axis do gamepad
         let sourcePad = null;
         if (listeningKeyObj === p1Keys) sourcePad = p1Pad || p2Pad;
-        else if (listeningKeyObj === p2Keys) sourcePad = p2Pad || null;
+        else if (listeningKeyObj === p2Keys) sourcePad = p2Pad || p1Pad || null;
         else sourcePad = p1Pad || p2Pad;
         if (!sourcePad && listeningKeyObj === p2Keys) {
             if (Date.now() - lastMissingP2WarningAt > 1400) {
@@ -337,24 +420,47 @@ function gamepadLoop() {
         if (p1Pad) pressedByPad[p1Pad.index] = getPressedNow(p1Pad);
         if (p2Pad && !pressedByPad[p2Pad.index]) pressedByPad[p2Pad.index] = getPressedNow(p2Pad);
 
-        const menuPad = p1Pad || p2Pad;
+        let menuPad = null;
+        if (p1Pad && p2Pad) {
+            const p1Pressed = pressedByPad[p1Pad.index] || [];
+            const p2Pressed = pressedByPad[p2Pad.index] || [];
+            const p1Active = p1Pressed.some(Boolean) || Math.abs(p1Pad.axes[0] || 0) > gamepadDeadzone || Math.abs(p1Pad.axes[1] || 0) > gamepadDeadzone;
+            const p2Active = p2Pressed.some(Boolean) || Math.abs(p2Pad.axes[0] || 0) > gamepadDeadzone || Math.abs(p2Pad.axes[1] || 0) > gamepadDeadzone;
+            if (p2Active && !p1Active) menuPad = p2Pad;
+            else if (p1Active && !p2Active) menuPad = p1Pad;
+            else if (p2Active) menuPad = p2Pad;
+            else menuPad = p1Pad;
+        } else {
+            menuPad = p1Pad || p2Pad;
+        }
         const pressedNowMenu = menuPad ? (pressedByPad[menuPad.index] || []) : [];
         const overlay = getVisibleOverlay();
         if (overlay) {
             if (overlay.id === 'character-select-menu') {
-                if (p1Pad) handleCharacterSelectGamepad(p1Pad, pressedByPad[p1Pad.index] || [], 'p1');
-                if (p2Pad) handleCharacterSelectGamepad(p2Pad, pressedByPad[p2Pad.index] || [], 'p2');
+                if (p1Pad && p2Pad && p1Pad.index !== p2Pad.index) {
+                    handleCharacterSelectGamepad(p1Pad, pressedByPad[p1Pad.index] || [], 'p1');
+                    handleCharacterSelectGamepad(p2Pad, pressedByPad[p2Pad.index] || [], 'p2');
+                } else if (menuPad) {
+                    handleCharacterSelectGamepad(menuPad, pressedNowMenu, selectionActiveSlot);
+                }
+            } else if (overlay.id === 'settings-menu') {
+                if (p1Pad) handleSettingsGamepadBySlot(p1Pad, pressedByPad[p1Pad.index] || [], 'p1');
+                if (p2Pad) handleSettingsGamepadBySlot(p2Pad, pressedByPad[p2Pad.index] || [], 'p2');
+                if (!p1Pad && !p2Pad && menuPad) handleOverlayGamepadNavigation(overlay, menuPad, pressedNowMenu);
             } else {
-                handleOverlayGamepadNavigation(overlay, menuPad, pressedNowMenu);
+                if (menuPad) handleOverlayGamepadNavigation(overlay, menuPad, pressedNowMenu);
             }
         } else if (gameActive && !isPaused) {
-            if (p1Pad) {
-                const pressedNowP1 = pressedByPad[p1Pad.index] || [];
-                handleFightGamepad(p1Pad, player, keysStateP1, p1Keys, pressedNowP1);
+            const player1Pad = getPadForPlayer('p1', p1Pad, p2Pad);
+            const player2Pad = getPadForPlayer('p2', p1Pad, p2Pad);
+
+            if (player1Pad) {
+                const pressedNowP1 = pressedByPad[player1Pad.index] || [];
+                handleFightGamepad(player1Pad, player, keysStateP1, p1Keys, pressedNowP1);
             }
-            if (p2Pad) {
-                const pressedNowP2 = pressedByPad[p2Pad.index] || [];
-                handleFightGamepad(p2Pad, enemy, keysStateP2, p2Keys, pressedNowP2);
+            if (player2Pad && (!player1Pad || player2Pad.index !== player1Pad.index)) {
+                const pressedNowP2 = pressedByPad[player2Pad.index] || [];
+                handleFightGamepad(player2Pad, enemy, keysStateP2, p2Keys, pressedNowP2);
             }
         }
     }

@@ -124,6 +124,7 @@ function checkMatchState() {
 
         clearTimeout(timerId);
         showCentralMessage("FINISH HIM!", 3000);
+        playSfx('finish_him');
         document.getElementById('blood-overlay').style.display = 'block';
     }
 }
@@ -142,6 +143,7 @@ function endGameWithWinner(winner, isFatality) {
         }
     }
     msg.style.display = 'block';
+    if (winner) playSfx('win');
     setTimeout(() => {
         if(!isPaused) quitToMenu();
     }, 6000);
@@ -465,30 +467,46 @@ function handleAction(fighter, cmd) {
         fighter.velocity.y = -22;
     } else if (cmd === 'punch') {
         if (!fighter.isAirborne && fighter.id === 'backend-frio' && fighter.checkCombo(['down', forward, 'punch'])) {
+            playSfx('special');
             fighter.specialIceball();
         } else if (!fighter.isAirborne && fighter.id === 'frontend-quente' && fighter.checkCombo([back, back, 'punch'])) {
-            fighter.specialSpear();
+            const canSpear = !opponent.isPulled && !opponent.isKnockedDown && !opponent.isDead && Math.abs(opponent.position.y - fighter.position.y) < 60;
+            if (canSpear) {
+                playSfx('special');
+                speakLine('Get over here!', 0.7, 0.88);
+                fighter.specialSpear();
+            }
         } else if (!fighter.isAirborne && fighter.id === 'php-storm' && fighter.checkCombo(['down', forward, 'punch'])) {
+            playSfx('special');
             fighter.specialLightning();
         } else if (!fighter.isAirborne && fighter.id === 'loop-dragao' && fighter.checkCombo(['down', forward, 'punch'])) {
+            playSfx('special');
             fighter.specialFireball();
         } else if (!fighter.isAirborne && fighter.id === 'git.ana' && fighter.checkCombo([back, back, 'punch'])) {
+            playSfx('special');
             fighter.specialFanBlade();
         } else if (!fighter.isAirborne && fighter.id === 'ada-byte' && fighter.checkCombo([back, back, 'punch'])) {
+            playSfx('special');
             fighter.specialSaiOrb();
         } else {
+            playSfx('punch');
             fighter.attackPunch();
         }
     } else if (cmd === 'kick') {
         if (!fighter.isAirborne && fighter.id === 'php-storm' && fighter.checkCombo([back, forward, 'kick'])) {
+            playSfx('special');
             fighter.specialSlideDash();
         } else if (!fighter.isAirborne && fighter.id === 'loop-dragao' && fighter.checkCombo([forward, forward, 'kick'])) {
+            playSfx('special');
             fighter.specialFlyingKick();
         } else if (!fighter.isAirborne && fighter.id === 'git.ana' && fighter.checkCombo(['down', forward, 'kick'])) {
+            playSfx('special');
             fighter.specialSpinDash();
         } else if (!fighter.isAirborne && fighter.id === 'ada-byte' && fighter.checkCombo(['down', forward, 'kick'])) {
+            playSfx('special');
             fighter.specialMileenaRush();
         } else {
+            playSfx('kick');
             fighter.attackKick();
         }
     }
@@ -546,13 +564,16 @@ function animate() {
 
             if (target.isBlocking && !target.isAirborne && matchState === 'fighting') {
                 target.takeHit(2, 'normal');
+                playSfx('hit');
                 proj.active = false;
             } else if (proj.type !== 'fire') {
                 if (proj.type === 'ice') target.freezeTimer = 70;
                 else if (proj.type === 'spear') {
-                    target.isPulled = true;
-                    target.pulledBy = proj.owner;
-                    target.takeHit(5, 'normal');
+                    if (!target.isKnockedDown && !target.isDead) {
+                        target.isPulled = true;
+                        target.pulledBy = proj.owner;
+                        target.takeHit(5, 'normal');
+                    }
                 } else if (proj.type === 'lightning') {
                     target.takeHit(11, 'normal');
                 } else if (proj.type === 'fireball_red') {
@@ -564,6 +585,7 @@ function animate() {
                 } else if (proj.type === 'sai_orb') {
                     target.takeHit(11, 'normal');
                 }
+                playSfx('hit');
                 for(let j=0; j<15; j++) {
                     particles.push(new Particle(proj.position.x, proj.position.y, proj.color, 'glow'));
                 }
@@ -586,6 +608,7 @@ function animate() {
             if (atk.isAttacking && !atk.hasHit && attackCollision({ attacker: atk, target: def }) && (!def.isDead || matchState === 'finish_him')) {
                 atk.hasHit = true;
                 def.takeHit(atk.attackDamage, atk.attackType);
+                playSfx('hit');
                 if ((atk.attackType === 'slide_dash' || atk.attackType === 'spin_dash') && atk.dashStopsOnHit) atk.stopDashSpecial();
                 updateHealthUI(def, ui);
             }
@@ -619,6 +642,10 @@ function resetGameState() {
 }
 
 function startGame() {
+    if (typeof canStartMatch === 'function' && !canStartMatch()) {
+        showCentralMessage('Os dois jogadores precisam ficar PRONTOS.', 1600);
+        return;
+    }
     setupSelectedFighters();
     applySelectedCharacterUI();
     document.getElementById('main-menu').style.display = 'none';
@@ -628,6 +655,7 @@ function startGame() {
     resetGameState();
 
     showCentralMessage("FIGHT!", 1500);
+    playSfx('fight_start');
 
     setTimeout(() => {
         gameActive = true;
@@ -640,6 +668,7 @@ function startGame() {
 function togglePause() {
     if (!gameActive || matchState !== 'fighting') return;
     isPaused = !isPaused;
+    playSfx(isPaused ? 'pause' : 'resume');
     document.getElementById('pause-menu').style.display = isPaused ? 'flex' : 'none';
     if (isPaused) renderPauseCommandList();
     else closePauseCommandList();

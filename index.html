@@ -28,19 +28,21 @@
         <div class="char-select-layout">
             <div class="char-select-col">
                 <h3 style="color: #00ffff;">PLAYER 1</h3>
+                <p id="p1-ready-status" class="same-char-warning" style="color:#00ffff;">ESCOLHENDO</p>
                 <div id="p1-char-list" class="char-list"></div>
                 <div id="p1-char-preview" class="char-preview"></div>
             </div>
             <div class="char-select-col">
                 <h3 style="color: #ffcc00;">PLAYER 2</h3>
+                <p id="p2-ready-status" class="same-char-warning" style="color:#ffcc00;">ESCOLHENDO</p>
                 <div id="p2-char-list" class="char-list"></div>
                 <div id="p2-char-preview" class="char-preview"></div>
             </div>
         </div>
-        <p class="same-char-warning">Teclado: A/D ou Setas para trocar, TAB alterna entre P1 e P2, 1 e 2 escolhem slot direto.</p>
+        <p class="same-char-warning">Teclado: A/D ou Setas para trocar, TAB alterna entre P1 e P2, ENTER marca PRONTO.</p>
         <p id="same-char-warning" class="same-char-warning" style="display:none;">Mesmo personagem selecionado: P2 entra com tom mais escuro.</p>
         <div class="char-select-actions">
-            <button id="start-match-btn" class="btn" onclick="startGame()">INICIAR LUTA</button>
+            <button id="start-match-btn" class="btn" style="display:none;" onclick="startGame()">INICIAR LUTA</button>
             <button class="btn" style="background-color: #333;" onclick="closeCharacterSelect()">VOLTAR</button>
         </div>
     </div>
@@ -55,14 +57,35 @@
                 <option value="90">90 Segundos</option>
                 <option value="Infinity">Infinito (∞)</option>
             </select>
+            <label style="margin-left:16px;">SOM:</label>
+            <select id="sfx-select">
+                <option value="off" selected>Desligado</option>
+                <option value="on">Ligado</option>
+            </select>
         </div>
         <div class="settings-grid">
             <div class="settings-col">
                 <h3 style="color: #00ffff;">CONTROLES P1</h3>
+                <label style="display:block; margin-bottom:8px;">Entrada P1:
+                    <select id="p1-input-source">
+                        <option value="auto">Auto (controle conectado)</option>
+                        <option value="keyboard">Teclado</option>
+                        <option value="pad1">Controle 1</option>
+                        <option value="pad2">Controle 2</option>
+                    </select>
+                </label>
                 <div id="p1-controls-list"></div>
             </div>
             <div class="settings-col">
                 <h3 style="color: #ffcc00;">CONTROLES P2</h3>
+                <label style="display:block; margin-bottom:8px;">Entrada P2:
+                    <select id="p2-input-source">
+                        <option value="keyboard">Teclado (fallback recomendado)</option>
+                        <option value="auto">Auto (controle 2 se houver)</option>
+                        <option value="pad1">Controle 1</option>
+                        <option value="pad2">Controle 2</option>
+                    </select>
+                </label>
                 <div id="p2-controls-list"></div>
             </div>
         </div>

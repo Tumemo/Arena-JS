@@ -55,6 +55,7 @@ class Fighter {
         this.skinColor = this.originalSkinColor;
         this.color = this.originalColor;
         this.applyColorShade(this.colorShade);
+        this.lastLightAttackAt = 0;
     }
 
     get isAirborne() {
@@ -92,7 +93,7 @@ class Fighter {
         return false;
     }
 
-    executeAttack(w, h, offset, type, damage, cooldownTime = 500) {
+    executeAttack(w, h, offset, type, damage, cooldownTime = 500, activeTime = 220) {
         if (this.attackCooldown || this.isImmobilized || this.isBlocking) return;
         this.isAttacking = true;
         this.hasHit = false;
@@ -105,22 +106,29 @@ class Fighter {
 
         setTimeout(() => {
             if(!isPaused && matchState !== 'fatality') this.isAttacking = false;
-        }, 250);
+        }, activeTime);
         setTimeout(() => {
             if(!isPaused) this.attackCooldown = false;
         }, cooldownTime);
     }
 
+    canUseLightAttack(minGapMs = 120) {
+        const now = Date.now();
+        if ((now - this.lastLightAttackAt) < minGapMs) return false;
+        this.lastLightAttackAt = now;
+        return true;
+    }
+
     attackPunch() {
-        if (this.isAirborne) this.executeAttack(80, 40, {x: 0, y: 80}, 'jump_punch', 12);
-        else if (this.isCrouching) this.executeAttack(80, 100, {x: 0, y: -30}, 'uppercut', 20, 800);
-        else this.executeAttack(110, 25, {x: 0, y: 30}, 'punch', 10);
+        if (this.isAirborne) this.executeAttack(80, 40, {x: 0, y: 80}, 'jump_punch', 12, 420, 210);
+        else if (this.isCrouching) this.executeAttack(80, 100, {x: 0, y: -30}, 'uppercut', 20, 800, 280);
+        else if (this.canUseLightAttack()) this.executeAttack(110, 25, {x: 0, y: 30}, 'punch', 8, 220, 150);
     }
 
     attackKick() {
-        if (this.isAirborne) this.executeAttack(110, 40, {x: 0, y: 100}, 'jump_kick', 15);
-        else if (this.isCrouching) this.executeAttack(140, 30, {x: 0, y: 150}, 'sweep', 10, 800);
-        else this.executeAttack(130, 25, {x: 0, y: 60}, 'kick', 15);
+        if (this.isAirborne) this.executeAttack(110, 40, {x: 0, y: 100}, 'jump_kick', 15, 450, 210);
+        else if (this.isCrouching) this.executeAttack(140, 30, {x: 0, y: 150}, 'sweep', 10, 800, 280);
+        else if (this.canUseLightAttack()) this.executeAttack(130, 25, {x: 0, y: 60}, 'kick', 12, 260, 170);
     }
 
     specialIceball() {
@@ -977,6 +985,9 @@ class Fighter {
     }
 
     takeHit(damage, hitType = 'normal') {
+        if (matchState === 'fighting' && this.isKnockedDown && !this.isAirborne) {
+            return;
+        }
         if (matchState === 'finish_him' && this.health <= 0) {
             this.stunTimer = 0;
             this.isDead = true;
