@@ -21,8 +21,8 @@ const characterRoster = [
         archetype: 'ninja'
     },
     {
-        id: 'python-trovao',
-        name: 'Python-Trovao',
+        id: 'php-storm',
+        name: 'Php-Storm',
         color: '#f3f7ff',
         baseColor: '#2f3f68',
         skinColor: '#d8c1a6',
@@ -39,8 +39,8 @@ const characterRoster = [
         archetype: 'shaolin'
     },
     {
-        id: 'gitana',
-        name: 'Gitana',
+        id: 'git.ana',
+        name: 'Git.Ana',
         color: '#4a7ddc',
         baseColor: '#132344',
         skinColor: '#d3a387',
@@ -48,8 +48,8 @@ const characterRoster = [
         archetype: 'kitana_style'
     },
     {
-        id: 'milena-byte',
-        name: 'Milena-Byte',
+        id: 'ada-byte',
+        name: 'Ada-Byte',
         color: '#9229c7',
         baseColor: '#2d0d42',
         skinColor: '#d09b83',

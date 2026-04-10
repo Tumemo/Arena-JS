@@ -20,6 +20,10 @@
 
     <div id="character-select-menu" class="overlay-screen" style="display: none;">
         <h1 class="title-text" style="font-size: 34px;">SELECAO DE PERSONAGENS</h1>
+        <div class="selection-slot-switch">
+            <button id="slot-p1-btn" class="btn slot-btn" style="width: 220px;" onclick="setSelectionSlot('p1')">EDITAR P1</button>
+            <button id="slot-p2-btn" class="btn slot-btn" style="width: 220px;" onclick="setSelectionSlot('p2')">EDITAR P2</button>
+        </div>
         <div class="char-select-layout">
             <div class="char-select-col">
                 <h3 style="color: #00ffff;">PLAYER 1</h3>
@@ -32,7 +36,7 @@
                 <div id="p2-char-preview" class="char-preview"></div>
             </div>
         </div>
-        <p class="same-char-warning">Teclado na selecao: A/D ou Setas para trocar, TAB muda P1/P2.</p>
+        <p class="same-char-warning">Teclado: A/D ou Setas para trocar, TAB alterna entre P1 e P2, 1 e 2 escolhem slot direto.</p>
         <p id="same-char-warning" class="same-char-warning" style="display:none;">Mesmo personagem selecionado: P2 entra com tom mais escuro.</p>
         <div class="char-select-actions">
             <button id="start-match-btn" class="btn" onclick="startGame()">INICIAR LUTA</button>
@@ -91,11 +95,13 @@
         <div class="credits-card">
             <p>Desenvolvido por <strong>Hugo Francisco da Silva</strong></p>
             <p>Professores: <strong>Hermilo Alves de Lunas</strong> e <strong>Marcos Reis Ferreira</strong></p>
-            <p>Projeto feito na aula do <strong>Senai</strong> em Regente Feijó, na instituição <strong>SESI</strong>.</p>
-            <p>Este projeto foi criado como parte das atividades da disciplina e do aprendizado em programação web.</p>
+            <p>Projeto desenvolvido durante o <strong>curso de Desenvolvimento de Sistemas</strong>, com foco em lógica de programação, JavaScript, interface e organização de projeto.</p>
+            <p>Esta arena foi criada para praticar mecânicas de jogos 2D: movimentação, colisão, comandos especiais, HUD e telas de menu.</p>
+            <p>Versão atual com melhorias visuais, novos personagens e ajustes de usabilidade com base no feedback do jogador.</p>
+            <p>Muito obrigado por jogar e apoiar este projeto.</p>
             <div class="credits-links">
-                <a id="instagram-link" href="#" target="_blank">Instagram</a>
-                <a id="linkedin-link" href="#" target="_blank">LinkedIn</a>
+                <a id="instagram-link" href="https://www.instagram.com/hg.silva20/" target="_blank" rel="noopener noreferrer">Instagram</a>
+                <a id="linkedin-link" href="https://www.linkedin.com/in/hugo-silva-68aba4372" target="_blank" rel="noopener noreferrer">LinkedIn</a>
             </div>
         </div>
         <button class="btn" onclick="closeCredits()">FECHAR</button>

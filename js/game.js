@@ -446,16 +446,16 @@ function handleAction(fighter, cmd) {
         } else if (fighter.id === 'frontend-quente' && fighter.checkCombo(['down', 'down', 'punch'])) {
             executeFrontendQuenteFatality(fighter, opponent);
             return;
-        } else if (fighter.id === 'python-trovao' && fighter.checkCombo([forward, forward, 'kick']) && isClose) {
+        } else if (fighter.id === 'php-storm' && fighter.checkCombo([forward, forward, 'kick']) && isClose) {
             executePythonTrovaoFatality(fighter, opponent);
             return;
         } else if (fighter.id === 'loop-dragao' && fighter.checkCombo([forward, forward, 'kick']) && isClose) {
             executeLoopDragaoFatality(fighter, opponent);
             return;
-        } else if (fighter.id === 'gitana' && fighter.checkCombo([back, back, 'kick']) && isClose) {
+        } else if (fighter.id === 'git.ana' && fighter.checkCombo([back, back, 'kick']) && isClose) {
             executeGitanaFatality(fighter, opponent);
             return;
-        } else if (fighter.id === 'milena-byte' && fighter.checkCombo(['down', 'down', 'kick']) && isClose) {
+        } else if (fighter.id === 'ada-byte' && fighter.checkCombo(['down', 'down', 'kick']) && isClose) {
             executeMilenaByteFatality(fighter, opponent);
             return;
         }
@@ -468,25 +468,25 @@ function handleAction(fighter, cmd) {
             fighter.specialIceball();
         } else if (!fighter.isAirborne && fighter.id === 'frontend-quente' && fighter.checkCombo([back, back, 'punch'])) {
             fighter.specialSpear();
-        } else if (!fighter.isAirborne && fighter.id === 'python-trovao' && fighter.checkCombo(['down', forward, 'punch'])) {
+        } else if (!fighter.isAirborne && fighter.id === 'php-storm' && fighter.checkCombo(['down', forward, 'punch'])) {
             fighter.specialLightning();
         } else if (!fighter.isAirborne && fighter.id === 'loop-dragao' && fighter.checkCombo(['down', forward, 'punch'])) {
             fighter.specialFireball();
-        } else if (!fighter.isAirborne && fighter.id === 'gitana' && fighter.checkCombo([back, back, 'punch'])) {
+        } else if (!fighter.isAirborne && fighter.id === 'git.ana' && fighter.checkCombo([back, back, 'punch'])) {
             fighter.specialFanBlade();
-        } else if (!fighter.isAirborne && fighter.id === 'milena-byte' && fighter.checkCombo([back, back, 'punch'])) {
+        } else if (!fighter.isAirborne && fighter.id === 'ada-byte' && fighter.checkCombo([back, back, 'punch'])) {
             fighter.specialSaiOrb();
         } else {
             fighter.attackPunch();
         }
     } else if (cmd === 'kick') {
-        if (!fighter.isAirborne && fighter.id === 'python-trovao' && fighter.checkCombo([back, forward, 'kick'])) {
+        if (!fighter.isAirborne && fighter.id === 'php-storm' && fighter.checkCombo([back, forward, 'kick'])) {
             fighter.specialSlideDash();
         } else if (!fighter.isAirborne && fighter.id === 'loop-dragao' && fighter.checkCombo([forward, forward, 'kick'])) {
             fighter.specialFlyingKick();
-        } else if (!fighter.isAirborne && fighter.id === 'gitana' && fighter.checkCombo(['down', forward, 'kick'])) {
+        } else if (!fighter.isAirborne && fighter.id === 'git.ana' && fighter.checkCombo(['down', forward, 'kick'])) {
             fighter.specialSpinDash();
-        } else if (!fighter.isAirborne && fighter.id === 'milena-byte' && fighter.checkCombo(['down', forward, 'kick'])) {
+        } else if (!fighter.isAirborne && fighter.id === 'ada-byte' && fighter.checkCombo(['down', forward, 'kick'])) {
             fighter.specialMileenaRush();
         } else {
             fighter.attackKick();

@@ -34,7 +34,7 @@ class Fighter {
         this.knockdownTimer = 0;
         this.inputs = [];
         this.specialCooldown = 0;
-        this.maxSpecialCooldown = 180;
+        this.maxSpecialCooldown = 110;
         this.isAttacking = false;
         this.attackType = 'punch';
         this.attackDamage = 10;
@@ -243,7 +243,7 @@ class Fighter {
     }
 
     specialSpinDash() {
-        this.beginDashSpecial('spin_dash', 14, 20, 26, false);
+        this.beginDashSpecial('spin_dash', 14, 20, 22, true);
     }
 
     specialFlyingKick() {
@@ -319,25 +319,241 @@ class Fighter {
             ctx.fillStyle = this.accent;
             ctx.fillRect(-20, drawY + 38, 40, 5);
         } else if (this.archetype === 'shaolin') {
-            ctx.fillStyle = '#1f1f1f';
-            ctx.fillRect(-12, drawY + 2, 24, 8); // cabelo
-            ctx.fillStyle = '#ff6a00';
-            ctx.fillRect(-22, drawY + 62, 44, 6); // faixa
+            // Loop-Dragao: cabelo longo, sem camisa, calca preta e botas brancas
+            ctx.fillStyle = '#101010';
+            ctx.fillRect(-14, drawY - 3, 28, 9);
+            ctx.fillRect(-20, drawY + 7, 6, 28);
+            ctx.fillRect(14, drawY + 7, 6, 28);
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(-22, drawY + 68, 44, 30);
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(-22, drawY + 126, 10, 12);
+            ctx.fillRect(12, drawY + 126, 10, 12);
         } else if (this.archetype === 'kitana_style') {
-            ctx.fillStyle = '#0f244b';
-            ctx.fillRect(-16, drawY + 0, 32, 10);
-            ctx.fillStyle = '#9ad0ff';
-            ctx.fillRect(-22, drawY + 64, 44, 5);
+            // Git.Ana: visual classico com cabelo longo, maio, luvas e botas
+            ctx.fillStyle = '#0b1730';
+            ctx.fillRect(-14, drawY - 3, 28, 9);
+            ctx.fillRect(-20, drawY + 7, 6, 30);
+            ctx.fillRect(14, drawY + 7, 6, 30);
+            ctx.fillStyle = this.color;
+            ctx.fillRect(-14, drawY + 56, 28, 30);
             ctx.fillStyle = '#dceeff';
-            ctx.fillRect(-24, drawY + 38, 48, 3);
+            ctx.fillRect(-26, drawY + 72, 10, 12);
+            ctx.fillRect(16, drawY + 72, 10, 12);
+            ctx.fillStyle = '#8fc6ff';
+            ctx.fillRect(-22, drawY + 122, 10, 16);
+            ctx.fillRect(12, drawY + 122, 10, 16);
+            ctx.fillStyle = '#c9e5ff';
+            ctx.fillRect(-9, drawY + 60, 18, 4);
         } else if (this.archetype === 'mileena_style') {
-            ctx.fillStyle = '#3a114f';
-            ctx.fillRect(-16, drawY + 0, 32, 10);
-            ctx.fillStyle = '#f057ff';
-            ctx.fillRect(-22, drawY + 64, 44, 5);
+            // Ada-Byte: visual classico com cabelo longo, maio, luvas e botas
+            ctx.fillStyle = '#2a0e3d';
+            ctx.fillRect(-14, drawY - 3, 28, 9);
+            ctx.fillRect(-20, drawY + 7, 6, 30);
+            ctx.fillRect(14, drawY + 7, 6, 30);
+            ctx.fillStyle = this.color;
+            ctx.fillRect(-14, drawY + 56, 28, 30);
             ctx.fillStyle = '#ffd2ff';
-            ctx.fillRect(-18, drawY + 40, 36, 3);
+            ctx.fillRect(-26, drawY + 72, 10, 12);
+            ctx.fillRect(16, drawY + 72, 10, 12);
+            ctx.fillStyle = '#f057ff';
+            ctx.fillRect(-22, drawY + 122, 10, 16);
+            ctx.fillRect(12, drawY + 122, 10, 16);
+            ctx.fillStyle = '#ffb6ff';
+            ctx.fillRect(-9, drawY + 60, 18, 4);
         }
+    }
+
+    drawLimb(ctx, cfg) {
+        ctx.save();
+        ctx.translate(cfg.pivotX, cfg.pivotY);
+        ctx.rotate(cfg.angle || 0);
+        ctx.fillStyle = cfg.baseColor;
+        ctx.fillRect(-cfg.width / 2, cfg.offsetY || 0, cfg.width, cfg.height);
+        if (cfg.detailColor) {
+            ctx.fillStyle = cfg.detailColor;
+            ctx.fillRect(-(cfg.width / 2) - 1, (cfg.offsetY || 0) + cfg.detailY, cfg.width + 2, cfg.detailHeight);
+        }
+        if (cfg.bootColor) {
+            ctx.fillStyle = cfg.bootColor;
+            ctx.fillRect(-cfg.width / 2, (cfg.offsetY || 0) + cfg.height - cfg.bootHeight, cfg.width, cfg.bootHeight);
+        }
+        ctx.restore();
+    }
+
+    drawClassicFemaleSprite(ctx, drawY, pose, palette) {
+        const bodyTop = drawY + 32;
+        const hipsY = drawY + 88;
+        const legHeight = 82;
+        const armHeight = 58;
+        const legWidth = 18;
+        const armWidth = 16;
+
+        // Cabelo longo (traseiro)
+        ctx.fillStyle = palette.hair;
+        ctx.fillRect(-18, drawY + 3, 36, 46);
+
+        // Perna traseira
+        this.drawLimb(ctx, {
+            pivotX: 10,
+            pivotY: hipsY,
+            angle: pose.legBackAngle,
+            width: legWidth,
+            height: legHeight,
+            baseColor: palette.stocking,
+            detailColor: palette.bootTop,
+            detailY: 42,
+            detailHeight: 24,
+            bootColor: palette.boot,
+            bootHeight: 16
+        });
+
+        // Braço traseiro
+        this.drawLimb(ctx, {
+            pivotX: 16,
+            pivotY: bodyTop + 10,
+            angle: pose.armBackAngle,
+            width: armWidth,
+            height: armHeight,
+            baseColor: palette.skin,
+            detailColor: palette.glove,
+            detailY: 18,
+            detailHeight: 30
+        });
+
+        // Tronco/maio
+        ctx.fillStyle = palette.skin;
+        ctx.fillRect(-17, bodyTop, 34, 22);
+        ctx.fillStyle = palette.suit;
+        ctx.fillRect(-20, bodyTop + 18, 40, 54);
+        ctx.fillStyle = palette.accent;
+        ctx.fillRect(-14, bodyTop + 24, 28, 6);
+        ctx.fillRect(-22, bodyTop + 50, 44, 5);
+
+        // Cabeca
+        ctx.fillStyle = palette.skin;
+        ctx.fillRect(-14, drawY, 28, 28);
+        ctx.fillStyle = palette.mask;
+        ctx.fillRect(-15, drawY + 15, 30, 12);
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(1, drawY + 9, 7, 4);
+
+        // Franja
+        ctx.fillStyle = palette.hair;
+        ctx.fillRect(-15, drawY - 2, 30, 8);
+
+        // Perna frente
+        this.drawLimb(ctx, {
+            pivotX: -10,
+            pivotY: hipsY,
+            angle: pose.legFrontAngle,
+            width: legWidth,
+            height: legHeight,
+            baseColor: palette.stocking,
+            detailColor: palette.bootTop,
+            detailY: 42,
+            detailHeight: 24,
+            bootColor: palette.boot,
+            bootHeight: 16
+        });
+
+        // Braço frente
+        this.drawLimb(ctx, {
+            pivotX: -16,
+            pivotY: bodyTop + 10,
+            angle: pose.armFrontAngle,
+            width: armWidth,
+            height: armHeight,
+            baseColor: palette.skin,
+            detailColor: palette.glove,
+            detailY: 18,
+            detailHeight: 30
+        });
+    }
+
+    drawLoopDragonSprite(ctx, drawY, pose) {
+        const bodyTop = drawY + 32;
+        const hipsY = drawY + 92;
+
+        // Cabelo longo
+        ctx.fillStyle = '#0f0f0f';
+        ctx.fillRect(-17, drawY + 2, 34, 42);
+        ctx.fillRect(-22, drawY + 12, 6, 26);
+        ctx.fillRect(16, drawY + 12, 6, 26);
+
+        // Perna traseira
+        this.drawLimb(ctx, {
+            pivotX: 10,
+            pivotY: hipsY,
+            angle: pose.legBackAngle,
+            width: 19,
+            height: 80,
+            baseColor: '#151515',
+            detailColor: '#0a0a0a',
+            detailY: 30,
+            detailHeight: 30,
+            bootColor: '#ffffff',
+            bootHeight: 16
+        });
+
+        // Braço traseiro
+        this.drawLimb(ctx, {
+            pivotX: 14,
+            pivotY: bodyTop + 8,
+            angle: pose.armBackAngle,
+            width: 17,
+            height: 58,
+            baseColor: this.skinColor,
+            detailColor: '#0f0f0f',
+            detailY: 20,
+            detailHeight: 20
+        });
+
+        // Tronco sem camisa
+        ctx.fillStyle = this.skinColor;
+        ctx.fillRect(-19, bodyTop, 38, 44);
+        ctx.fillStyle = '#101010';
+        ctx.fillRect(-22, bodyTop + 42, 44, 28);
+        ctx.fillStyle = '#ff6a00';
+        ctx.fillRect(-20, bodyTop + 44, 40, 5);
+
+        // Cabeca
+        ctx.fillStyle = this.skinColor;
+        ctx.fillRect(-14, drawY, 28, 28);
+        ctx.fillStyle = '#0f0f0f';
+        ctx.fillRect(-15, drawY - 2, 30, 8);
+        ctx.fillStyle = '#222';
+        ctx.fillRect(-15, drawY + 16, 30, 10);
+        ctx.fillStyle = '#fff';
+        ctx.fillRect(1, drawY + 9, 7, 4);
+
+        // Perna frente
+        this.drawLimb(ctx, {
+            pivotX: -10,
+            pivotY: hipsY,
+            angle: pose.legFrontAngle,
+            width: 19,
+            height: 80,
+            baseColor: '#151515',
+            detailColor: '#0a0a0a',
+            detailY: 30,
+            detailHeight: 30,
+            bootColor: '#ffffff',
+            bootHeight: 16
+        });
+
+        // Braço frente
+        this.drawLimb(ctx, {
+            pivotX: -14,
+            pivotY: bodyTop + 8,
+            angle: pose.armFrontAngle,
+            width: 17,
+            height: 58,
+            baseColor: this.skinColor,
+            detailColor: '#0f0f0f',
+            detailY: 20,
+            detailHeight: 20
+        });
     }
 
     draw(ctx, canvas, floorY) {
@@ -484,6 +700,64 @@ class Fighter {
             }
         }
 
+        const pose = { armFrontAngle, armBackAngle, legFrontAngle, legBackAngle };
+        if (this.archetype === 'kitana_style') {
+            this.drawClassicFemaleSprite(ctx, drawY, pose, {
+                skin: this.skinColor,
+                suit: '#3e74d8',
+                accent: '#9ad0ff',
+                glove: '#d8ecff',
+                bootTop: '#8fc6ff',
+                boot: '#5ba9ff',
+                stocking: '#24437d',
+                mask: '#4a7ddc',
+                hair: '#0f1a2d'
+            });
+            if (this.isBlocking && !this.isBurned) {
+                ctx.beginPath();
+                ctx.arc(0, drawY + 50, 70, -Math.PI / 2, Math.PI / 2);
+                ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+                ctx.lineWidth = 5;
+                ctx.stroke();
+            }
+            ctx.restore();
+            return;
+        }
+        if (this.archetype === 'mileena_style') {
+            this.drawClassicFemaleSprite(ctx, drawY, pose, {
+                skin: this.skinColor,
+                suit: '#9229c7',
+                accent: '#f057ff',
+                glove: '#ffd7ff',
+                bootTop: '#ff92ff',
+                boot: '#db53ff',
+                stocking: '#4f2069',
+                mask: '#b64af4',
+                hair: '#1a0d23'
+            });
+            if (this.isBlocking && !this.isBurned) {
+                ctx.beginPath();
+                ctx.arc(0, drawY + 50, 70, -Math.PI / 2, Math.PI / 2);
+                ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+                ctx.lineWidth = 5;
+                ctx.stroke();
+            }
+            ctx.restore();
+            return;
+        }
+        if (this.archetype === 'shaolin') {
+            this.drawLoopDragonSprite(ctx, drawY, pose);
+            if (this.isBlocking && !this.isBurned) {
+                ctx.beginPath();
+                ctx.arc(0, drawY + 50, 70, -Math.PI / 2, Math.PI / 2);
+                ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+                ctx.lineWidth = 5;
+                ctx.stroke();
+            }
+            ctx.restore();
+            return;
+        }
+
         // Desenho corpo
         ctx.fillStyle = this.baseColor;
         ctx.save();
@@ -513,8 +787,16 @@ class Fighter {
             // Tronco sem camisa e calca distinta
             ctx.fillStyle = this.skinColor;
             ctx.fillRect(-18, drawY + 32, 36, 30);
-            ctx.fillStyle = this.color;
+            ctx.fillStyle = this.archetype === 'shaolin' ? '#101010' : this.color;
             ctx.fillRect(-22, drawY + 62, 44, 38);
+        }
+
+        if (this.archetype === 'kitana_style' || this.archetype === 'mileena_style') {
+            // Mantem visual com maiô no tronco e pernas
+            ctx.fillStyle = this.color;
+            ctx.fillRect(-16, drawY + 50, 32, 42);
+            ctx.fillStyle = this.skinColor;
+            ctx.fillRect(-12, drawY + 34, 24, 18);
         }
 
         if(!this.isBurned) {

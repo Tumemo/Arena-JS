@@ -45,6 +45,8 @@ function renderCharacterSelection() {
     const p2Container = document.getElementById('p2-char-list');
     const sameCharWarning = document.getElementById('same-char-warning');
     const startBtn = document.getElementById('start-match-btn');
+    const p1SlotBtn = document.getElementById('slot-p1-btn');
+    const p2SlotBtn = document.getElementById('slot-p2-btn');
     if (!p1Container || !p2Container || !startBtn) return;
 
     const createCard = (char, slot) => {
@@ -52,7 +54,9 @@ function renderCharacterSelection() {
         const cursorIndex = selectionCursor[slot];
         const thisIndex = characterRoster.findIndex((item) => item.id === char.id);
         const isFocused = selectionActiveSlot === slot && cursorIndex === thisIndex;
-        return `<button class="char-card ${isSelected ? 'selected' : ''} ${isFocused ? 'focused' : ''}" onclick="selectCharacter('${slot}', '${char.id}')">
+        const portrait = getCharacterPortraitHTML(char);
+        return `<button class="char-card ${isSelected ? 'selected' : ''} ${isFocused ? 'focused' : ''}" onclick="selectCharacter('${slot}', '${char.id}')" style="--char-main:${char.color}; --char-base:${char.baseColor}; --char-skin:${char.skinColor}; --char-accent:${char.accent};">
+            ${portrait}
             <span class="char-name">${char.name}</span>
             <span class="char-special">${getSpecialText(char.id)}</span>
         </button>`;
@@ -64,16 +68,31 @@ function renderCharacterSelection() {
     const sameCharacter = selectedCharacters.p1 === selectedCharacters.p2;
     sameCharWarning.style.display = sameCharacter ? 'block' : 'none';
     startBtn.disabled = !selectedCharacters.p1 || !selectedCharacters.p2;
+    if (p1SlotBtn && p2SlotBtn) {
+        p1SlotBtn.classList.toggle('active-slot', selectionActiveSlot === 'p1');
+        p2SlotBtn.classList.toggle('active-slot', selectionActiveSlot === 'p2');
+    }
     renderCharacterPreview();
+}
+
+function getCharacterPortraitHTML(char) {
+    const hatClass = char.archetype === 'storm_python' ? 'with-hat' : '';
+    const hairClass = (char.archetype === 'shaolin' || char.archetype === 'kitana_style' || char.archetype === 'mileena_style') ? 'with-hair' : '';
+    return `<span class="char-portrait ${hatClass} ${hairClass}">
+        <span class="portrait-head"></span>
+        <span class="portrait-mask"></span>
+        <span class="portrait-body"></span>
+        <span class="portrait-belt"></span>
+    </span>`;
 }
 
 function getSpecialText(characterId) {
     if (characterId === 'backend-frio') return 'Especial: gelo + freeze';
     if (characterId === 'frontend-quente') return 'Especial: arpao + puxao';
-    if (characterId === 'python-trovao') return 'Especial: raio + dash deitado';
+    if (characterId === 'php-storm') return 'Especial: raio + dash deitado';
     if (characterId === 'loop-dragao') return 'Especial: bola de fogo + voadora';
-    if (characterId === 'gitana') return 'Especial: leque + giro de corte';
-    if (characterId === 'milena-byte') return 'Especial: orb roxa + rush';
+    if (characterId === 'git.ana') return 'Especial: leque + giro de corte';
+    if (characterId === 'ada-byte') return 'Especial: orb roxa + rush';
     return 'Especial unico';
 }
 
@@ -92,7 +111,7 @@ function getCommandListByCharacter(characterId) {
             'Fatality: Baixo -> Baixo -> Soco'
         ];
     }
-    if (characterId === 'python-trovao') {
+    if (characterId === 'php-storm') {
         return [
             'Especial (raio): Baixo -> Frente -> Soco',
             'Especial (avanco deitado): Tras -> Frente -> Chute',
@@ -106,14 +125,14 @@ function getCommandListByCharacter(characterId) {
             'Fatality (perto): Frente -> Frente -> Chute'
         ];
     }
-    if (characterId === 'gitana') {
+    if (characterId === 'git.ana') {
         return [
             'Especial (leque): Tras -> Tras -> Soco',
             'Especial (giro): Baixo -> Frente -> Chute',
             'Fatality (perto): Tras -> Tras -> Chute'
         ];
     }
-    if (characterId === 'milena-byte') {
+    if (characterId === 'ada-byte') {
         return [
             'Especial (orb roxa): Tras -> Tras -> Soco',
             'Especial (rush): Baixo -> Frente -> Chute',
@@ -129,14 +148,19 @@ function selectCharacter(slot, characterId) {
     renderCharacterSelection();
 }
 
+function setSelectionSlot(slot) {
+    selectionActiveSlot = slot;
+    renderCharacterSelection();
+}
+
 function renderCharacterPreview() {
     const p1 = getCharacterByIdUI(selectedCharacters.p1);
     const p2 = getCharacterByIdUI(selectedCharacters.p2);
     const p1Preview = document.getElementById('p1-char-preview');
     const p2Preview = document.getElementById('p2-char-preview');
     if (!p1Preview || !p2Preview) return;
-    p1Preview.innerHTML = `<div class="preview-avatar" style="background:${p1.color}; border-color:${p1.accent};"></div><span>${p1.name}</span>`;
-    p2Preview.innerHTML = `<div class="preview-avatar" style="background:${p2.color}; border-color:${p2.accent};"></div><span>${p2.name}</span>`;
+    p1Preview.innerHTML = `<div class="preview-card" style="--char-main:${p1.color}; --char-base:${p1.baseColor}; --char-skin:${p1.skinColor}; --char-accent:${p1.accent};">${getCharacterPortraitHTML(p1)}<span>${p1.name}</span></div>`;
+    p2Preview.innerHTML = `<div class="preview-card" style="--char-main:${p2.color}; --char-base:${p2.baseColor}; --char-skin:${p2.skinColor}; --char-accent:${p2.accent};">${getCharacterPortraitHTML(p2)}<span>${p2.name}</span></div>`;
 }
 
 function moveSelectionCursor(slot, direction) {
@@ -156,13 +180,18 @@ window.addEventListener('keydown', (event) => {
         renderCharacterSelection();
         return;
     }
-    if (key === 'w' || key === 's' || key === 'arrowup' || key === 'arrowdown') {
-        selectionActiveSlot = selectionActiveSlot === 'p1' ? 'p2' : 'p1';
-        renderCharacterSelection();
-        return;
-    }
+    if (key === 'w' || key === 'arrowup') moveSelectionCursor(selectionActiveSlot, -1);
+    if (key === 's' || key === 'arrowdown') moveSelectionCursor(selectionActiveSlot, 1);
     if (key === 'a' || key === 'arrowleft') moveSelectionCursor(selectionActiveSlot, -1);
     if (key === 'd' || key === 'arrowright') moveSelectionCursor(selectionActiveSlot, 1);
+    if (key === '1') {
+        selectionActiveSlot = 'p1';
+        renderCharacterSelection();
+    }
+    if (key === '2') {
+        selectionActiveSlot = 'p2';
+        renderCharacterSelection();
+    }
 });
 
 function openCharacterSelect() {
