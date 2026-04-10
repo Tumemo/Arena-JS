@@ -157,6 +157,17 @@ class Fighter {
         }));
     }
 
+    specialTeleportStrike(opponent) {
+        if(this.attackCooldown || this.isImmobilized || this.specialCooldown > 0 || this.isBlocking || !opponent) return;
+        this.specialCooldown = this.maxSpecialCooldown;
+        const behindOffset = 70;
+        if (opponent.isFacingRight) this.position.x = Math.max(0, opponent.position.x - behindOffset);
+        else this.position.x = Math.min(canvas.width - this.width, opponent.position.x + behindOffset);
+        this.position.y = opponent.position.y;
+        this.isFacingRight = this.position.x < opponent.position.x;
+        this.executeAttack(120, 36, {x: 0, y: 52}, 'punch', 16, 650, 180);
+    }
+
     specialLightning() {
         if(this.attackCooldown || this.isImmobilized || this.specialCooldown > 0 || this.isBlocking) return;
         this.executeAttack(0,0,{x:0,y:0}, 'special', 0, 850);
@@ -247,7 +258,7 @@ class Fighter {
     }
 
     specialSlideDash() {
-        this.beginDashSpecial('slide_dash', 17, 18, 60, true);
+        this.beginDashSpecial('slide_dash', 18, 17, 54, true);
     }
 
     specialSpinDash() {
@@ -255,7 +266,8 @@ class Fighter {
     }
 
     specialFlyingKick() {
-        this.beginDashSpecial('liu_flying_kick', 15, 19, 28, true);
+        if (!this.isAirborne) this.velocity.y = -8;
+        this.beginDashSpecial('liu_flying_kick', 17, 20, 34, true);
     }
 
     specialShadowKick() {
@@ -688,23 +700,33 @@ class Fighter {
                 ctx.rotate(-0.05);
             }
             else if (this.attackType === 'slide_dash') {
-                drawY = -148;
+                drawY = this.id === 'php-storm' ? -132 : -148;
                 legFrontAngle = -1.05;
                 legBackAngle = -0.9;
                 legFrontY = 12;
                 legBackY = 14;
                 armFrontAngle = -1.8;
                 armBackAngle = -1.75;
-                ctx.translate(0, -6);
-                ctx.rotate(-0.1);
+                ctx.translate(0, this.id === 'php-storm' ? 3 : -6);
+                ctx.rotate(this.id === 'php-storm' ? -0.22 : -0.1);
             } else if (this.attackType === 'spin_dash') {
-                drawY = -165;
-                legFrontAngle = Math.sin(Date.now() / 55) * 1.8;
-                legBackAngle = -Math.sin(Date.now() / 55) * 1.8;
-                armFrontAngle = Math.sin(Date.now() / 55) * 2.2;
-                armBackAngle = -Math.sin(Date.now() / 55) * 2.2;
-                ctx.translate(0, -30);
-                ctx.rotate(Date.now() / 70);
+                if (this.id === 'git.ana') {
+                    drawY = -152;
+                    legFrontAngle = -1.15;
+                    legBackAngle = -0.45;
+                    armFrontAngle = -1.05;
+                    armBackAngle = -0.65;
+                    ctx.translate(0, -10);
+                    ctx.rotate(-0.08);
+                } else {
+                    drawY = -165;
+                    legFrontAngle = Math.sin(Date.now() / 55) * 1.8;
+                    legBackAngle = -Math.sin(Date.now() / 55) * 1.8;
+                    armFrontAngle = Math.sin(Date.now() / 55) * 2.2;
+                    armBackAngle = -Math.sin(Date.now() / 55) * 2.2;
+                    ctx.translate(0, -30);
+                    ctx.rotate(Date.now() / 70);
+                }
             }
         }
 
@@ -999,6 +1021,7 @@ class Fighter {
 
         if (this.isBlocking && !this.isAirborne && hitType !== 'sweep') {
             this.health -= damage * 0.1;
+            if (typeof playSfx === 'function') playSfx('block_hit');
             this.velocity.x = this.isFacingRight ? -6 : 6;
             for(let i=0; i<10; i++) {
                 particles.push(new Particle(
@@ -1010,6 +1033,7 @@ class Fighter {
             }
         } else {
             this.health -= damage;
+            if (typeof playSfx === 'function') playSfx('hit');
             this.isHit = true;
             this.hitTimer = 15;
             for(let i=0; i<20; i++) {

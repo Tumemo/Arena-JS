@@ -52,7 +52,7 @@ let selectionCursor = { p1: 0, p2: 1 };
 let selectedReady = { p1: false, p2: false };
 let inputSource = { p1: 'auto', p2: 'keyboard' };
 let sfxContext = null;
-let sfxEnabled = false;
+let sfxEnabled = true;
 
 function getSfxContext() {
     const Ctx = window.AudioContext || window.webkitAudioContext;
@@ -100,6 +100,21 @@ function playSfx(name) {
     else if (name === 'kick') playTone(130, 0.08, 'square', 0.13, 100);
     else if (name === 'special') playTone(240, 0.14, 'sawtooth', 0.14, 520);
     else if (name === 'hit') playTone(95, 0.06, 'square', 0.15, 70);
+    else if (name === 'block_hit') playTone(210, 0.05, 'triangle', 0.12, 170);
+    else if (name === 'spear_cast') playTone(760, 0.08, 'square', 0.16, 220);
+    else if (name === 'spear_hit') playTone(120, 0.07, 'square', 0.18, 80);
+    else if (name === 'ice_cast') playTone(640, 0.1, 'triangle', 0.14, 410);
+    else if (name === 'ice_hit') playTone(420, 0.07, 'triangle', 0.15, 300);
+    else if (name === 'thunder_cast') playTone(300, 0.14, 'sawtooth', 0.17, 90);
+    else if (name === 'thunder_hit') playTone(180, 0.12, 'sawtooth', 0.18, 70);
+    else if (name === 'fire_cast') playTone(520, 0.1, 'sawtooth', 0.15, 250);
+    else if (name === 'fire_hit') playTone(260, 0.08, 'sawtooth', 0.16, 130);
+    else if (name === 'fan_cast') playTone(880, 0.06, 'triangle', 0.14, 560);
+    else if (name === 'fan_hit') playTone(450, 0.05, 'triangle', 0.15, 260);
+    else if (name === 'orb_cast') playTone(700, 0.08, 'square', 0.15, 430);
+    else if (name === 'orb_hit') playTone(320, 0.07, 'square', 0.16, 180);
+    else if (name === 'slide_cast') playTone(190, 0.08, 'square', 0.15, 120);
+    else if (name === 'teleport_cast') playTone(980, 0.07, 'triangle', 0.14, 280);
     else if (name === 'pause') playTone(310, 0.08, 'triangle', 0.1, 240);
     else if (name === 'resume') playTone(260, 0.08, 'triangle', 0.1, 360);
     else if (name === 'finish_him') {
@@ -108,21 +123,6 @@ function playSfx(name) {
     } else if (name === 'win') {
         playTone(520, 0.08, 'triangle', 0.12, 680);
         setTimeout(() => playTone(680, 0.10, 'triangle', 0.12, 920), 80);
-    }
-}
-
-function speakLine(text, pitch = 0.8, rate = 0.95) {
-    if (!window.speechSynthesis) return;
-    try {
-        const utter = new SpeechSynthesisUtterance(text);
-        utter.lang = 'en-US';
-        utter.pitch = pitch;
-        utter.rate = rate;
-        utter.volume = 0.85;
-        window.speechSynthesis.cancel();
-        window.speechSynthesis.speak(utter);
-    } catch (err) {
-        console.warn('Falha no speech synthesis.', err);
     }
 }
 

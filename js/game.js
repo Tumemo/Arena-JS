@@ -153,7 +153,7 @@ function executeBackendFrioFatality(winner, loser) {
     matchState = 'fatality';
     winner.velocity = {x:0, y:0};
     loser.velocity = {x:0, y:0};
-    showCentralMessage("", 0);
+    showCentralMessage("ICE SHATTER!", 1400);
     winner.isFacingRight = winner.position.x < loser.position.x;
 
     setTimeout(() => {
@@ -186,7 +186,7 @@ function executeFrontendQuenteFatality(winner, loser) {
     matchState = 'fatality';
     winner.velocity = {x:0, y:0};
     loser.velocity = {x:0, y:0};
-    showCentralMessage("", 0);
+    showCentralMessage("HELL FIRE!", 1400);
     winner.isFacingRight = winner.position.x < loser.position.x;
 
     setTimeout(() => {
@@ -229,7 +229,7 @@ function executePythonTrovaoFatality(winner, loser) {
     matchState = 'fatality';
     winner.velocity = {x:0, y:0};
     loser.velocity = {x:0, y:0};
-    showCentralMessage("", 0);
+    showCentralMessage("THUNDER GOD!", 1400);
     winner.isFacingRight = winner.position.x < loser.position.x;
 
     setTimeout(() => {
@@ -265,34 +265,32 @@ function executeLoopDragaoFatality(winner, loser) {
     matchState = 'fatality';
     winner.velocity = {x:0, y:0};
     loser.velocity = {x:0, y:0};
-    showCentralMessage("", 0);
+    showCentralMessage("DRAGON FATALITY!", 1700);
     winner.isFacingRight = winner.position.x < loser.position.x;
     winner.isAttacking = true;
-    winner.attackType = 'liu_flying_kick';
-    let bursts = 0;
-    const fx = setInterval(() => {
-        bursts++;
-        for(let i=0; i<20; i++) {
-            particles.push(new Particle(loser.position.x + 30, loser.position.y + 80, '#ff5f00', 'fire', 1.6));
+    winner.attackType = 'special';
+
+    setTimeout(() => {
+        playSfx('fire_cast');
+        for (let i = 0; i < 40; i++) {
+            particles.push(new Particle(loser.position.x + 30, loser.position.y + 80, '#ff7a00', 'fire', 2.2));
         }
-        if (bursts >= 6) {
-            clearInterval(fx);
-            loser.isBurned = true;
-            loser.color = '#220000';
-            loser.baseColor = '#140000';
-            loser.skinColor = '#3b1a1a';
-            loser.isKnockedDown = true;
-            loser.knockdownTimer = Infinity;
-            setTimeout(() => endGameWithWinner(winner, true), 1200);
-        }
-    }, 180);
+        setTimeout(() => {
+            loser.isShattered = true;
+            for (let i = 0; i < 140; i++) {
+                particles.push(new Particle(loser.position.x + 30, loser.position.y + 80, '#ff5f00', 'fire', 2.2));
+                particles.push(new Particle(loser.position.x + 30, loser.position.y + 80, '#ff0000', 'blood', 1.5));
+            }
+            setTimeout(() => endGameWithWinner(winner, true), 1400);
+        }, 900);
+    }, 350);
 }
 
 function executeGitanaFatality(winner, loser) {
     matchState = 'fatality';
     winner.velocity = {x:0, y:0};
     loser.velocity = {x:0, y:0};
-    showCentralMessage("", 0);
+    showCentralMessage("FAN STORM!", 1300);
     winner.isFacingRight = winner.position.x < loser.position.x;
     winner.isAttacking = true;
     winner.attackType = 'special';
@@ -315,7 +313,7 @@ function executeMilenaByteFatality(winner, loser) {
     matchState = 'fatality';
     winner.velocity = {x:0, y:0};
     loser.velocity = {x:0, y:0};
-    showCentralMessage("", 0);
+    showCentralMessage("BYTE RUSH!", 1300);
     winner.isFacingRight = winner.position.x < loser.position.x;
     winner.isAttacking = true;
     winner.attackType = 'mileena_rush';
@@ -467,43 +465,48 @@ function handleAction(fighter, cmd) {
         fighter.velocity.y = -22;
     } else if (cmd === 'punch') {
         if (!fighter.isAirborne && fighter.id === 'backend-frio' && fighter.checkCombo(['down', forward, 'punch'])) {
-            playSfx('special');
+            playSfx('ice_cast');
             fighter.specialIceball();
         } else if (!fighter.isAirborne && fighter.id === 'frontend-quente' && fighter.checkCombo([back, back, 'punch'])) {
             const canSpear = !opponent.isPulled && !opponent.isKnockedDown && !opponent.isDead && Math.abs(opponent.position.y - fighter.position.y) < 60;
             if (canSpear) {
-                playSfx('special');
-                speakLine('Get over here!', 0.7, 0.88);
+                playSfx('spear_cast');
                 fighter.specialSpear();
             }
         } else if (!fighter.isAirborne && fighter.id === 'php-storm' && fighter.checkCombo(['down', forward, 'punch'])) {
-            playSfx('special');
+            playSfx('thunder_cast');
             fighter.specialLightning();
         } else if (!fighter.isAirborne && fighter.id === 'loop-dragao' && fighter.checkCombo(['down', forward, 'punch'])) {
-            playSfx('special');
+            playSfx('fire_cast');
             fighter.specialFireball();
         } else if (!fighter.isAirborne && fighter.id === 'git.ana' && fighter.checkCombo([back, back, 'punch'])) {
-            playSfx('special');
+            playSfx('fan_cast');
             fighter.specialFanBlade();
         } else if (!fighter.isAirborne && fighter.id === 'ada-byte' && fighter.checkCombo([back, back, 'punch'])) {
-            playSfx('special');
+            playSfx('orb_cast');
             fighter.specialSaiOrb();
         } else {
             playSfx('punch');
             fighter.attackPunch();
         }
     } else if (cmd === 'kick') {
-        if (!fighter.isAirborne && fighter.id === 'php-storm' && fighter.checkCombo([back, forward, 'kick'])) {
-            playSfx('special');
+        if (!fighter.isAirborne && fighter.id === 'backend-frio' && fighter.checkCombo([back, forward, 'kick'])) {
+            playSfx('slide_cast');
+            fighter.specialSlideDash();
+        } else if (!fighter.isAirborne && fighter.id === 'frontend-quente' && fighter.checkCombo(['down', back, 'kick'])) {
+            playSfx('teleport_cast');
+            fighter.specialTeleportStrike(opponent);
+        } else if (!fighter.isAirborne && fighter.id === 'php-storm' && fighter.checkCombo([back, forward, 'kick'])) {
+            playSfx('slide_cast');
             fighter.specialSlideDash();
         } else if (!fighter.isAirborne && fighter.id === 'loop-dragao' && fighter.checkCombo([forward, forward, 'kick'])) {
-            playSfx('special');
+            playSfx('fire_cast');
             fighter.specialFlyingKick();
         } else if (!fighter.isAirborne && fighter.id === 'git.ana' && fighter.checkCombo(['down', forward, 'kick'])) {
-            playSfx('special');
+            playSfx('fan_cast');
             fighter.specialSpinDash();
         } else if (!fighter.isAirborne && fighter.id === 'ada-byte' && fighter.checkCombo(['down', forward, 'kick'])) {
-            playSfx('special');
+            playSfx('orb_cast');
             fighter.specialMileenaRush();
         } else {
             playSfx('kick');
@@ -585,7 +588,13 @@ function animate() {
                 } else if (proj.type === 'sai_orb') {
                     target.takeHit(11, 'normal');
                 }
-                playSfx('hit');
+                if (proj.type === 'spear') playSfx('spear_hit');
+                else if (proj.type === 'ice') playSfx('ice_hit');
+                else if (proj.type === 'lightning') playSfx('thunder_hit');
+                else if (proj.type === 'fireball_red') playSfx('fire_hit');
+                else if (proj.type === 'fan_blade') playSfx('fan_hit');
+                else if (proj.type === 'sai_orb') playSfx('orb_hit');
+                else playSfx('hit');
                 for(let j=0; j<15; j++) {
                     particles.push(new Particle(proj.position.x, proj.position.y, proj.color, 'glow'));
                 }
