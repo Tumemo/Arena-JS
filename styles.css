@@ -168,6 +168,16 @@ canvas {
     line-height: 1.5; 
 }
 
+.gamepad-status {
+    font-size: 11px;
+    color: #bfc9d6;
+    margin-bottom: 16px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 10px;
+    padding: 8px 12px;
+}
+
 #character-select-menu .title-text {
     margin-bottom: 12px;
 }

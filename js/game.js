@@ -548,7 +548,7 @@ function animate() {
                 target.takeHit(2, 'normal');
                 proj.active = false;
             } else if (proj.type !== 'fire') {
-                if (proj.type === 'ice') target.freezeTimer = 120;
+                if (proj.type === 'ice') target.freezeTimer = 70;
                 else if (proj.type === 'spear') {
                     target.isPulled = true;
                     target.pulledBy = proj.owner;

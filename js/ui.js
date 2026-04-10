@@ -2,6 +2,11 @@
 
 function formatKeyName(key) {
     if(key === ' ') return 'ESPAÇO';
+    if (key && key.startsWith('gp_btn_')) return `GP BTN ${key.replace('gp_btn_', '')}`;
+    if (key === 'gp_axis_left') return 'GP ANALOGICO ESQ';
+    if (key === 'gp_axis_right') return 'GP ANALOGICO DIR';
+    if (key === 'gp_axis_up') return 'GP ANALOGICO CIMA';
+    if (key === 'gp_axis_down') return 'GP ANALOGICO BAIXO';
     if(key.startsWith('arrow')) return 'SETA ' + key.replace('arrow', '').toUpperCase();
     return key.toUpperCase();
 }
@@ -298,6 +303,44 @@ function buildSettingsUI() {
     buildList(p2Keys, 'p2-controls-list');
 }
 
+let listeningKeyObj = null;
+let listeningKeyAction = null;
+let listeningKeyHandler = null;
+let listeningGamepadReady = false;
+
+function finishListeningForKey(newKey) {
+    if (!listeningKeyBtn || !listeningKeyObj || !listeningKeyAction) return;
+    const duplicatedAction = Object.keys(listeningKeyObj).find((action) => action !== listeningKeyAction && listeningKeyObj[action] === newKey);
+    if (duplicatedAction) {
+        listeningKeyBtn.innerText = 'JA EM USO';
+        showCentralMessage('Esse botao ja esta em uso nessa configuracao.', 1200);
+        setTimeout(() => {
+            if (listeningKeyBtn) listeningKeyBtn.innerText = 'PRESSIONE...';
+        }, 350);
+        return;
+    }
+    listeningKeyObj[listeningKeyAction] = newKey;
+    listeningKeyBtn.innerText = formatKeyName(newKey);
+    listeningKeyBtn.classList.remove('listening');
+    listeningKeyBtn = null;
+    listeningKeyObj = null;
+    listeningKeyAction = null;
+    if (listeningKeyHandler) {
+        window.removeEventListener('keydown', listeningKeyHandler);
+        listeningKeyHandler = null;
+    }
+    listeningGamepadReady = false;
+    updateKeyMaps();
+    saveSettingsToStorage();
+}
+
+function captureGamepadBinding(buttonIndex) {
+    if (!listeningKeyBtn) return false;
+    const value = typeof buttonIndex === 'number' ? `gp_btn_${buttonIndex}` : `gp_${buttonIndex}`;
+    finishListeningForKey(value);
+    return true;
+}
+
 function listenForKey(btnElement, keyObj, action) {
     if(listeningKeyBtn) {
         listeningKeyBtn.classList.remove('listening');
@@ -305,23 +348,20 @@ function listenForKey(btnElement, keyObj, action) {
     }
     
     listeningKeyBtn = btnElement;
+    listeningKeyObj = keyObj;
+    listeningKeyAction = action;
+    listeningGamepadReady = false;
     listeningKeyBtn.dataset.originalKey = keyObj[action];
     listeningKeyBtn.innerText = 'PRESSIONE...';
     listeningKeyBtn.classList.add('listening');
 
-    const handler = (e) => {
+    listeningKeyHandler = (e) => {
         e.preventDefault();
         let newKey = e.key.toLowerCase();
         if(newKey === 'escape') newKey = listeningKeyBtn.dataset.originalKey;
-        keyObj[action] = newKey;
-        listeningKeyBtn.innerText = formatKeyName(newKey);
-        listeningKeyBtn.classList.remove('listening');
-        listeningKeyBtn = null;
-        window.removeEventListener('keydown', handler);
-        updateKeyMaps();
-        saveSettingsToStorage();
+        finishListeningForKey(newKey);
     };
-    window.addEventListener('keydown', handler);
+    window.addEventListener('keydown', listeningKeyHandler);
 }
 
 function updateKeyMaps() {

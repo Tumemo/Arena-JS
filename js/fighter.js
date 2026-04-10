@@ -944,7 +944,7 @@ class Fighter {
             this.velocity.x = this.position.x > this.pulledBy.position.x ? -15 : 15;
             if (Math.abs(this.position.x - this.pulledBy.position.x) < 80) {
                 this.isPulled = false;
-                if(matchState !== 'finish_him') this.stunTimer = 120;
+                if(matchState !== 'finish_him') this.stunTimer = 70;
                 this.velocity.x = 0;
             }
         }
